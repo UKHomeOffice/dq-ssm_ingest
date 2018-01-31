@@ -1,0 +1,52 @@
+CREATE TABLE acl_schd
+(
+  source character(1) NOT NULL,
+  acl_id bigint,
+  flight_id bigint,
+  carrier_id bigint,
+  leg_id bigint,
+  airline_iata character(2),
+  airline_icao character(3),
+  flightnumber character varying(5),
+  codeshare integer,
+  operating_flightnumber character varying(10),
+  flight_date date,
+  std timestamp with time zone,
+  "off" timestamp with time zone,
+  "out" timestamp with time zone,
+  down timestamp with time zone,
+  "on" timestamp with time zone,
+  sta timestamp with time zone,
+  eta timestamp with time zone,
+  ata timestamp with time zone,
+  origin_iata character(3),
+  origin_icao character(4),
+  destination_iata character(3),
+  destination_icao character(4),
+  airport_iata character(3),
+  airport_icao character(4),
+  last_next_iata character(3),
+  last_next_icao character(4),
+  orig_dest_iata character(3),
+  orig_dest_icao character(4),
+  aircraft_iata character(3),
+  aircraft_icao character(4),
+  seats integer,
+  pax integer,
+  lastupdated timestamp with time zone,
+  flight_type character(1),
+  pax_flight integer,
+  origin_status character(2),
+  destination_status character(2),
+  etd timestamp with time zone,
+  atd timestamp with time zone,
+  arr_dep character(1),
+  oag_type character(1),
+  flight_transid character varying(255),
+  voyageid character varying(32)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE acl_schd
+  OWNER TO ssm;
