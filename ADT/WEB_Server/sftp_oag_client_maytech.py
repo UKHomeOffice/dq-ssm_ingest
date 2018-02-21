@@ -21,9 +21,9 @@ import subprocess
 import paramiko
 
 
-ssh_remote_host='<see document for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
-ssh_remote_user='<see document for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
-ssh_private_key='<see document for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_remote_host='<see doc for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_remote_user='<see doc for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_private_key='<see doc for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
 ssh_landing_dir='/'
 download_dir='/ADT/data/oag'
 staging_dir='/ADT/stage/oag'
