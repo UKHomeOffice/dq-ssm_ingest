@@ -161,10 +161,10 @@ def main():
 	if run_virus_scan(vscanexe, vscanopt, staging_dir):
 		for f in os.listdir(staging_dir):
 			oaghistory[f]='R'
-			lf=os.path.join(download_dir,f)
-			sf=os.path.join(staging_dir,f)
-			logger.debug("move %s from staging to download %s",sf ,lf)
-			os.rename(sf,lf)
+			file_download=os.path.join(download_dir,f)
+			file_staging=os.path.join(staging_dir,f)
+			logger.debug("move %s from staging to download %s",file_staging ,file_download)
+			os.rename(file_staging,file_download)
 			downloadcount+=1
 
 	oaghistory.close()
