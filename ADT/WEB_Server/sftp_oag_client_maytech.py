@@ -121,35 +121,35 @@ def main():
 	try:
 		sftp.chdir(ssh_landing_dir)
 		files=sftp.listdir()
-		for f in files:
-			match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', f, re.I)
+		for file_xml in files:
+			match=re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', file_xml, re.I)
 			download=False
 			if match is not None:
-				if f not in oaghistory.keys():
-					oaghistory[f]='N' # new
+				if file_xml not in oaghistory.keys():
+					oaghistory[file_xml]='N' # new
 
-                if oaghistory[f] == 'N':
+                if oaghistory[file_xml] == 'N':
 					download=True
 				else:
-					logger.debug("Skipping %s", f)
+					logger.debug("Skipping %s", file_xml)
 					continue
 
-                lf=os.path.join(download_dir,f)
-				slf=os.path.join(staging_dir,f)
+                file_xml_download=os.path.join(download_dir,file_xml)
+				file_xml_staging=os.path.join(staging_dir,file_xml)
 
 				#protection against redownload
-				if os.path.isfile(slf) and os.path.getsize(slf) > 0 and os.path.getsize(slf) == sftp.stat(f).st_size:
+				if os.path.isfile(file_xml_staging) and os.path.getsize(file_xml_staging) > 0 and os.path.getsize(file_xml_staging) == sftp.stat(file_xml).st_size:
 					logger.info("File exists")
-					download=False
-					oaghistory[f]='R' # ready
-					logger.debug("purge %s", f)
-					sftp.remove(f)
+					download = False
+					oaghistory[file_xml] = 'R' # ready
+					logger.debug("purge %s", file_xml)
+					sftp.remove(file_xml)
 				if download:
-					logger.info("Downloading %s to %s", f, slf)
-					sftp.get(f, slf) # remote, local
-					if os.path.isfile(slf) and os.path.getsize(slf) > 0 and os.path.getsize(slf) == sftp.stat(f).st_size:
-						logger.debug("purge %s", f)
-						sftp.remove(f)
+					logger.info("Downloading %s to %s", file_xml, file_xml_staging)
+					sftp.get(file_xml, file_xml_staging) # remote, local
+					if os.path.isfile(file_xml_staging) and os.path.getsize(file_xml_staging) > 0 and os.path.getsize(file_xml_staging) == sftp.stat(file_xml).st_size:
+						logger.debug("purge %s", file_xml)
+						sftp.remove(file_xml)
 		# end for
 	except:
 		logger.exception("Failure")
