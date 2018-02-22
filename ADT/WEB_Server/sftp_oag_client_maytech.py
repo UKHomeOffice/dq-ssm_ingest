@@ -33,16 +33,16 @@ vscanexe='/usr/bin/clamdscan'
 vscanopt=''
 
 def ssh_login(in_host, in_user, in_keyfile):
-        logger=logging.getLogger()
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy()) ## This line can be removed when the host is added to the known_hosts file
-        privkey = paramiko.RSAKey.from_private_key_file (in_keyfile)
-        try:
-                ssh.connect(in_host, username=in_user,pkey=privkey )
-        except Exception, e:
-                logger.exception('SSH CONNECT ERROR')
-                os._exit(1)
-        return ssh
+    logger=logging.getLogger()
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy()) ## This line can be removed when the host is added to the known_hosts file
+    privkey = paramiko.RSAKey.from_private_key_file (in_keyfile)
+    try:
+        ssh.connect(in_host, username=in_user,pkey=privkey )
+    except Exception, e:
+        logger.exception('SSH CONNECT ERROR')
+        os._exit(1)
+    return ssh
 
 
 def run_virus_scan(vscanexe, option, filename):
@@ -79,7 +79,6 @@ def main():
 			level=logging.INFO
 		)
 
-
 	logger=logging.getLogger()
 	logger.info("Starting")
 	status=1
@@ -114,10 +113,10 @@ def main():
 			oaghistory[filename]='D' # downloaded
 
 	downloadcount=0
-        logger.debug("Connecting via SSH")
-        ssh=ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
-        logger.debug("Connected")
-        sftp = ssh.open_sftp()
+    logger.debug("Connecting via SSH")
+    ssh=ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
+    logger.debug("Connected")
+    sftp = ssh.open_sftp()
 
 	try:
 		sftp.chdir(ssh_landing_dir)
@@ -128,12 +127,14 @@ def main():
 			if match is not None:
 				if f not in oaghistory.keys():
 					oaghistory[f]='N' # new
-				if oaghistory[f] == 'N':
+
+                if oaghistory[f] == 'N':
 					download=True
 				else:
 					logger.debug("Skipping %s", f)
 					continue
-				lf=os.path.join(download_dir,f)
+
+                lf=os.path.join(download_dir,f)
 				slf=os.path.join(staging_dir,f)
 
 				#protection against redownload
@@ -149,7 +150,6 @@ def main():
 					if os.path.isfile(slf) and os.path.getsize(slf) > 0 and os.path.getsize(slf) == sftp.stat(f).st_size:
 						logger.debug("purge %s", f)
 						sftp.remove(f)
-
 		# end for
 	except:
 		logger.exception("Failure")
