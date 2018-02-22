@@ -97,20 +97,20 @@ def main():
 
 	# process download folder for downloaded files and move to archive folder
 	logger.debug("Scanning download folder %s", download_dir)
-	for f in os.listdir(download_dir):
-		logger.debug("File %s", f)
-		match = re.search('^(1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', f, re.I)
+	for file_done in os.listdir(download_dir):
+		logger.debug("File %s", file_done)
+		match = re.search('^(1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', file_done, re.I)
 
 		if match is not None:
-			filename=match.group(1)
-			logger.info("File %s has been downloaded %s file found", filename, f)
-			nf=os.path.join(archive_dir, filename)
-			lf=os.path.join(download_dir, filename)
-			lfd=os.path.join(download_dir, f)
-			os.rename(lf,nf)
-			logger.info("Archived %s", filename)
-			os.unlink(lfd)
-			oaghistory[filename]='D' # downloaded
+			file_xml = match.group(1)
+			logger.info("File %s has been downloaded %s file found", file_xml, file_done)
+			file_xml_archive = os.path.join(archive_dir, file_xml)
+			file_xml_download = os.path.join(download_dir, file_xml)
+			file_done_download = os.path.join(download_dir, file_done)
+			os.rename(file_xml_download,file_xml_archive)
+			logger.info("Archived %s", file_xml)
+			os.unlink(file_done_download)
+			oaghistory[file_xml]='D' # downloaded
 
 	downloadcount=0
     logger.debug("Connecting via SSH")
