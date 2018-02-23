@@ -97,28 +97,28 @@ def main():
 
 	# process download folder for downloaded files and move to archive folder
 	logger.debug("Scanning download folder %s", download_dir)
-	for f in os.listdir(download_dir):
-		logger.debug("File %s", f)
+	for file_done in os.listdir(download_dir):
+		logger.debug("File %s", file_done)
 
-		match = re.search('^((.*?)homeofficeroll(\d+)_(\d{4}\d{2}\d{2})\.csv)\.done$', f, re.I)
+		match = re.search('^((.*?)homeofficeroll(\d+)_(\d{4}\d{2}\d{2})\.csv)\.done$', file_done, re.I)
 
 		if match is not None:
-			filename=match.group(1)
+			file_csv=match.group(1)
 
-			logger.info("File %s has been downloaded %s file found", filename, f)
+			logger.info("File %s has been downloaded %s file found", file_csv, file_done)
 
-			nf=os.path.join(archive_dir, filename)
+			nf=os.path.join(archive_dir, file_csv)
 
-			lf=os.path.join(download_dir, filename)
-			lfd=os.path.join(download_dir, f)
+			file_csv_download=os.path.join(download_dir, file_csv)
+			file_done_download=os.path.join(download_dir, file_done)
 
-			os.rename(lf,nf)
+			os.rename(file_csv_download,nf)
 
-			logger.info("Archived %s", filename)
+			logger.info("Archived %s", file_csv)
 
-			os.unlink(lfd)
+			os.unlink(file_done_download)
 
-			aclhistory[filename]='D' # downloaded
+			aclhistory[file_csv]='D' # downloaded
 
 	downloadcount=0
 
@@ -128,45 +128,45 @@ def main():
 			ftp_host.chdir('3_Days')
 
 			files=ftp_host.listdir(ftp_host.curdir)
-			for f in files:
+			for file_csv in files:
 
-				match = re.search('^(.*?)homeofficeroll(\d+)_(\d{4}\d{2}\d{2})\.csv$', f, re.I)
+				match = re.search('^(.*?)homeofficeroll(\d+)_(\d{4}\d{2}\d{2})\.csv$', file_csv, re.I)
 
 				download=False
 
 				if match is not None:
-					if f not in aclhistory.keys():
-						aclhistory[f]='N' # new
+					if file_csv not in aclhistory.keys():
+						aclhistory[file_csv]='N' # new
 
-					if aclhistory[f] == 'N':
+					if aclhistory[file_csv] == 'N':
 						download=True
 					else:
-						logger.debug("Skipping %s", f)
+						logger.debug("Skipping %s", file_csv)
 						continue
 
-					lf=os.path.join(download_dir,f)
-					slf=os.path.join(staging_dir,f)
+					file_csv_download=os.path.join(download_dir,file_csv)
+					file_csv_download=os.path.join(staging_dir,file_csv)
 
 					#protection against redownload
-					if os.path.isfile(lf) and os.path.getsize(lf) > 0 and os.path.getsize(lf) == ftp_host.stat(f).st_size:
+					if os.path.isfile(file_csv_download) and os.path.getsize(file_csv_download) > 0 and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
 						logger.info("File exists")
 						download=False
-						aclhistory[f]='R' # ready
+						aclhistory[file_csv]='R' # ready
 
 					if download:
-						logger.info("Downloading %s to %s", f, lf)
+						logger.info("Downloading %s to %s", file_csv, file_csv_download)
 
-						ftp_host.download(f, slf) # remote, local (staging)
+						ftp_host.download(file_csv, file_csv_download) # remote, local (staging)
 
-						logger.debug("downloaded %s to %s", f, slf)
+						logger.debug("downloaded %s to %s", file_csv, file_csv_download)
 
-						if os.path.isfile(slf) and os.path.getsize(slf) > 0  and os.path.getsize(slf) == ftp_host.stat(f).st_size:
+						if os.path.isfile(file_csv_download) and os.path.getsize(file_csv_download) > 0  and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
 							logger.debug("before virus scan")
-							if run_virus_scan(vscanexe, vscanopt, slf):
-								aclhistory[f]='R' # ready
+							if run_virus_scan(vscanexe, vscanopt, file_csv_download):
+								aclhistory[file_csv]='R' # ready
 
 								# move from staging to live
-								os.rename(slf,lf)
+								os.rename(file_csv_download,file_csv_download)
 
 								downloadcount+=1
 			# end for
