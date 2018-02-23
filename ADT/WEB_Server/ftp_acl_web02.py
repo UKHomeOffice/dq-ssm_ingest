@@ -20,22 +20,21 @@ import subprocess
 # local module
 import ProxySock
 
-
 # ACL FTP details - do not purge data
-server=os.environ['server']
-username=os.environ['username']
-password=os.environ['password']
+server = os.environ['server']
+username = os.environ['username']
+password = os.environ['password']
 
-download_dir='/ADT/data/acl'
-staging_dir='/ADT/stage/acl'
-quarantine_dir='/ADT/quarantine/acl'
-archive_dir='/ADT/archive/acl'
+download_dir = '/ADT/data/acl'
+staging_dir = '/ADT/stage/acl'
+quarantine_dir = '/ADT/quarantine/acl'
+archive_dir = '/ADT/archive/acl'
 
-vscanexe='/usr/bin/clamdscan'
-vscanopt=''
+vscanexe = '/usr/bin/clamdscan'
+vscanopt = ''
 
 def run_virus_scan(vscanexe, option, filename):
-	logger=logging.getLogger()
+	logger = logging.getLogger()
 	logger.debug("Virus Scanning %s", filename)
 
 	# do quarantine move using via the virus scanner
@@ -54,7 +53,7 @@ def run_virus_scan(vscanexe, option, filename):
 
 def main():
 	parser = argparse.ArgumentParser(description='ACL FTP Downloader')
-	parser.add_argument('-D','--DEBUG',  default=False, action='store_true', help='Debug mode logging')
+	parser.add_argument('-D','--DEBUG', default = False, action='store_true', help='Debug mode logging')
 
 	args = parser.parse_args()
 
@@ -73,15 +72,15 @@ def main():
 			level=logging.INFO
 		)
 
-	logger=logging.getLogger()
+	logger = logging.getLogger()
 
 	logger.info("Starting")
 
-	status=1
+	status = 1
 
 	ProxySock.setup_http_proxy(os.environ['proxy'], 3128)
 
-	aclhistory=gdbm.open('aclhistory.db','c')
+	aclhistory = gdbm.open('aclhistory.db','c')
 
 	if not os.path.exists(download_dir):
 		os.makedirs(download_dir)
@@ -103,14 +102,14 @@ def main():
 		match = re.search('^((.*?)homeofficeroll(\d+)_(\d{4}\d{2}\d{2})\.csv)\.done$', file_done, re.I)
 
 		if match is not None:
-			file_csv=match.group(1)
+			file_csv = match.group(1)
 
 			logger.info("File %s has been downloaded %s file found", file_csv, file_done)
 
-			nf=os.path.join(archive_dir, file_csv)
+			nf = os.path.join(archive_dir, file_csv)
 
-			file_csv_download=os.path.join(download_dir, file_csv)
-			file_done_download=os.path.join(download_dir, file_done)
+			file_csv_download = os.path.join(download_dir, file_csv)
+			file_done_download = os.path.join(download_dir, file_done)
 
 			os.rename(file_csv_download,nf)
 
@@ -120,37 +119,37 @@ def main():
 
 			aclhistory[file_csv]='D' # downloaded
 
-	downloadcount=0
+	downloadcount = 0
 
 	with ftputil.FTPHost(server, username, password) as ftp_host:
 
 		try:
 			ftp_host.chdir('3_Days')
 
-			files=ftp_host.listdir(ftp_host.curdir)
+			files = ftp_host.listdir(ftp_host.curdir)
 			for file_csv in files:
 
 				match = re.search('^(.*?)homeofficeroll(\d+)_(\d{4}\d{2}\d{2})\.csv$', file_csv, re.I)
 
-				download=False
+				download = False
 
 				if match is not None:
 					if file_csv not in aclhistory.keys():
-						aclhistory[file_csv]='N' # new
+						aclhistory[file_csv] = 'N' # new
 
 					if aclhistory[file_csv] == 'N':
-						download=True
+						download = True
 					else:
 						logger.debug("Skipping %s", file_csv)
 						continue
 
-					file_csv_download=os.path.join(download_dir,file_csv)
-					file_csv_download=os.path.join(staging_dir,file_csv)
+					file_csv_download = os.path.join(download_dir,file_csv)
+					file_csv_download = os.path.join(staging_dir,file_csv)
 
 					#protection against redownload
 					if os.path.isfile(file_csv_download) and os.path.getsize(file_csv_download) > 0 and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
 						logger.info("File exists")
-						download=False
+						download = False
 						aclhistory[file_csv]='R' # ready
 
 					if download:
@@ -160,7 +159,7 @@ def main():
 
 						logger.debug("downloaded %s to %s", file_csv, file_csv_download)
 
-						if os.path.isfile(file_csv_download) and os.path.getsize(file_csv_download) > 0  and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
+						if os.path.isfile(file_csv_download) and os.path.getsize(file_csv_download) > 0 and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
 							logger.debug("before virus scan")
 							if run_virus_scan(vscanexe, vscanopt, file_csv_download):
 								aclhistory[file_csv]='R' # ready
