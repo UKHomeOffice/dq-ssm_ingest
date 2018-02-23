@@ -26,7 +26,6 @@ server=os.environ['server']
 username=os.environ['username']
 password=os.environ['password']
 
-#download_dir=time.strftime('%Y%m%d%H%I%S')
 download_dir='/ADT/data/acl'
 staging_dir='/ADT/stage/acl'
 quarantine_dir='/ADT/quarantine/acl'
@@ -47,22 +46,6 @@ def run_virus_scan(vscanexe, option, filename):
 	if virus_scan_return_code != 0: # Exit script if virus scan exe fails
 		logger.error('VIRUS SCAN FAILED %s', filename)
 		return False
-		#if os.path.isfile(filename):
-		#	# quarantine single
-		#	logger.error("Quarantine file %s", filename)
-		#	nf=os.path.join(quarantine_dir,  os.path.basename(filename))
-		#	os.rename(filename,nf)
-		#elif os.path.isdir(filename):
-		#	logger.error("Quarantine folder %s", filename)
-		#	for f in os.listdir(filename):
-		#		logger.error("Quarantine file %s", f)
-		#		nf=os.path.join(quarantine_dir,  os.path.basename(f))
-		#		os.rename(f,nf)
-		#else:
-		#	# hard failure
-		#	logger.error("Can't quarantine %s", filename)
-		#	print -2
-		#	os._exit(1)
 	else:
 		logger.debug('Virus scan OK')
 
@@ -90,14 +73,11 @@ def main():
 			level=logging.INFO
 		)
 
-
 	logger=logging.getLogger()
 
 	logger.info("Starting")
 
 	status=1
-
-	# Main
 
 	ProxySock.setup_http_proxy(os.environ['proxy'], 3128)
 
@@ -137,7 +117,6 @@ def main():
 			logger.info("Archived %s", filename)
 
 			os.unlink(lfd)
-			#os.unlink(lf)
 
 			aclhistory[filename]='D' # downloaded
 
@@ -174,7 +153,7 @@ def main():
 						download=False
 						aclhistory[f]='R' # ready
 
-					if download: # and match.group(3) == '20151005':
+					if download:
 						logger.info("Downloading %s to %s", f, lf)
 
 						ftp_host.download(f, slf) # remote, local (staging)
@@ -190,11 +169,6 @@ def main():
 								os.rename(slf,lf)
 
 								downloadcount+=1
-
-								# if oag then zap it...
-								#ftp_host.remove(f)
-#					else:
-#						aclhistory[f]='D'
 			# end for
 		except:
 			logger.exception("Failure")
