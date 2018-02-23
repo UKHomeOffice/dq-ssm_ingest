@@ -33,7 +33,7 @@ _sql={
 			S1.flight_transid,
 
 			S1.arr_dep,
-			
+
 			S1.airline_iata,
 			S1.airline_icao,
 			S1.flightnumber,
@@ -76,18 +76,18 @@ _sql={
 			from schd S
 			where lastupdated > (select source_date from history where source_type='S')
 			and not exists ( select 1 from servicetypes C where C.service_type_exclude is not null and S.flight_type = C.servicetype_code )
-		) S2 on S1.voyageid=S2.voyageid
-		order by 
-			S1.voyageid, 
-			S1.lastupdated	
-	""",	
-	
+		) S2 on S1.voyageid = S2.voyageid
+		order by
+			S1.voyageid,
+			S1.lastupdated
+	""",
+
 	'history' : """
-		update history 
+		update history
 		set source_date = %(lastupdated)s::timestamp
 		where source_type='S'
 	""",
-	
+
 	'aclmerge' : """
 		insert into schd (
 			voyageid,
@@ -133,7 +133,7 @@ _sql={
 			origin_status,
 			destination_status,
 			etd,
-			atd		
+			atd
 		)
 		select
 			voyageid,
@@ -179,14 +179,14 @@ _sql={
 			origin_status,
 			destination_status,
 			etd,
-			atd		
+			atd
 		from acl_schd
 	""",
-	
+
 	'acltruncate' : """
 		truncate table acl_schd
 	""",
-	
+
 }
 
 _dbfields=[
@@ -276,17 +276,17 @@ _csvfields=[
 ]
 
 def aclmerge(dbh):
-	status=1
-	message='ok'
+	status = 1
+	message = 'ok'
 
 	module_logger.info("Looking for ACL Data To Merge")
-	
-	csr=dbh.cursor()
-	
+
+	csr = dbh.cursor()
+
 	try:
 		csr.execute(_sql['aclmerge'])
 
-		rowcount=csr.rowcount
+		rowcount = csr.rowcount
 
 		module_logger.info("ACL rows merged: %s", rowcount)
 
@@ -295,7 +295,7 @@ def aclmerge(dbh):
 
 		if rowcount > 0:
 			module_logger.info("Purging ACL Merge")
-			
+
 			csr.execute(_sql['acltruncate'])
 
 			module_logger.debug("Q %s", csr.query)
@@ -305,95 +305,95 @@ def aclmerge(dbh):
 
 		module_logger.debug("Commit")
 		dbh.commit()
-		status=1	
+		status = 1
 	except:
 		module_logger.exception("Rollback")
 		csr.close()
 		dbh.rollback()
 
 		status=-2
-		message="Error processing ACL Merge"
+		message = "Error processing ACL Merge"
 		module_logger.error("Error processing ACL Merge")
 
 	module_logger.info("ACL Merge Complete");
-	
+
 	return (status, message)
 #end def aclmerge
 
 def outputfile(dbh,outputdir, archivedir=None):
-	
-	status=1
-	message='ok'
-	
-	flights={}
-	
+
+	status = 1
+	message = 'ok'
+
+	flights = {}
+
 	# make output folder if it doesn't exist
 	if not os.path.exists(outputdir):
 		os.makedirs(outputdir)
 
-	archivemode=False
-	
+	archivemode = False
+
 	if archivedir is not None and archivedir != outputdir:
 		module_logger.debug("Archive Mode")
 
-		archivemode=True
-		
-		if not os.path.exists(archivedir):
-			os.makedirs(archivedir)	
-	
-	# ssm_output_2015-09-30_23-50-00.csv
-	
-	if os.path.isdir(outputdir):
-		timestr=datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
-		csvfilename=os.path.join(outputdir,'ssm_output_'+timestr+'.csv')
-		trigfilename=os.path.join(outputdir,'ssm_output_'+timestr+'.trg')
+		archivemode = True
 
-		archivefilename=None
+		if not os.path.exists(archivedir):
+			os.makedirs(archivedir)
+
+	# ssm_output_2015-09-30_23-50-00.csv
+
+	if os.path.isdir(outputdir):
+		timestr = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+		csvfilename = os.path.join(outputdir,'ssm_output_'+timestr+'.csv')
+		trigfilename = os.path.join(outputdir,'ssm_output_'+timestr+'.trg')
+
+		archivefilename = None
 		if archivemode:
-			archivefilename=os.path.join(archivedir,'ssm_output_'+timestr+'.csv')
-		
+			archivefilename = os.path.join(archivedir,'ssm_output_'+timestr+'.csv')
+
 		module_logger.info("Output to %s %s",csvfilename, trigfilename)
-		
-		csr=dbh.cursor()
+
+		csr = dbh.cursor()
 
 		csr.execute( _sql['output'] )
-		
-		lastupdate=None
+
+		lastupdate = None
 
 		# only dump a csv if we have data
-		if csr.rowcount > 0:	
-			for rec in csr:	
-				voyageid=rec[0]
-				
+		if csr.rowcount > 0:
+			for rec in csr:
+				voyageid = rec[0]
+
 				if voyageid not in flights:
-					flights[voyageid]={}
-				
+					flights[voyageid] = {}
+
 				for k,v in enumerate(_dbfields):
 					# if the value is not null then we can overwrite
 					if rec[k] is not None:
-						flights[voyageid][v]=rec[k]
+						flights[voyageid][v] = rec[k]
 					# if the field hasn't been seen before, add it
 					elif v not in flights[voyageid]:
-						flights[voyageid][v]=None
-				
+						flights[voyageid][v] = None
+
 				if lastupdate is not None:
 					if lastupdate < flights[voyageid]['lastupdated']:
-						lastupdate=flights[voyageid]['lastupdated']
+						lastupdate = flights[voyageid]['lastupdated']
 				else:
-					lastupdate=flights[voyageid]['lastupdated']
-				
+					lastupdate = flights[voyageid]['lastupdated']
+
 				module_logger.debug("F %s %s",voyageid,flights[voyageid])
 		else:
-			status=1
-			message='No new data - no file produced'
+			status = 1
+			message = 'No new data - no file produced'
 			module_logger.warning("No data")
 
 		csr.close()
-		
-		if len(flights.keys()) > 0:					
+
+		if len(flights.keys()) > 0:
 			try:
 				with open(csvfilename,'wb') as csvfile:
-					csvwrite=csv.DictWriter(csvfile, fieldnames=_csvfields, extrasaction='ignore', quoting=csv.QUOTE_NONNUMERIC)
+					csvwrite = csv.DictWriter(csvfile, fieldnames=_csvfields, extrasaction='ignore', quoting=csv.QUOTE_NONNUMERIC)
 
 					# header
 					#csvwrite.writeheader() # 2.7 only
@@ -401,9 +401,9 @@ def outputfile(dbh,outputdir, archivedir=None):
 
 					# iterate the record set
 					for voyageid in flights:
-						guid=uuid.uuid5(uuid.NAMESPACE_DNS, voyageid)
+						guid = uuid.uuid5(uuid.NAMESPACE_DNS, voyageid)
 
-						flights[voyageid]['voyageid']=guid
+						flights[voyageid]['voyageid'] = guid
 
 						csvwrite.writerow(flights[voyageid])
 
@@ -416,7 +416,7 @@ def outputfile(dbh,outputdir, archivedir=None):
 				try:
 					module_logger.debug("history update")
 
-					csr=dbh.cursor()
+					csr = dbh.cursor()
 
 					csr.execute(_sql['history'], {'lastupdated': lastupdate })
 
@@ -426,7 +426,7 @@ def outputfile(dbh,outputdir, archivedir=None):
 
 					dbh.commit()
 
-				except:	
+				except:
 					module_logger.exception("Rollback")
 
 					csr.close()
@@ -434,22 +434,22 @@ def outputfile(dbh,outputdir, archivedir=None):
 					dbh.rollback()
 
 					status=-2
-					message="Error updating last output status"
+					message = "Error updating last output status"
 
 			except:
 				status=-2
-				message="Error creating CSV "+csvfilename
+				message = "Error creating CSV "+csvfilename
 				module_logger.error("Error creating CSV %s %s", csvfilename, trigfilename)
 		#end if
-		
+
 	else:
 		status=-2
-		message="Not a valid output folder "+outputdir
+		message = "Not a valid output folder "+outputdir
 		module_logger.error("Not a valid output folder %s",outputdir)
 
 	#if debug:
 	#	print "FS",flights
 
-		
+
 	return (status, message)
 #end def outputfile
