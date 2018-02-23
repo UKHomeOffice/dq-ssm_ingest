@@ -2,9 +2,6 @@
 
 # FTP OAG Script
 # Version 1
-# ben.baylis@flightregister.net
-# ben@velvetbug.com
-# Flight Register/Velvet Bug Ltd
 
 # we only need the datetime class & the static function strptime from datetime module
 from datetime import datetime
@@ -52,7 +49,7 @@ def run_virus_scan(vscanexe, option, filename):
 		logger.error('VIRUS SCAN FAILED %s', filename)
 		return False
 		#if os.path.isfile(filename):
-		#	# quarantine single 
+		#	# quarantine single
 		#	logger.error("Quarantine file %s", filename)
 		#	nf=os.path.join(quarantine_dir,  os.path.basename(filename))
 		#	os.rename(filename,nf)
@@ -66,10 +63,10 @@ def run_virus_scan(vscanexe, option, filename):
 		#	# hard failure
 		#	logger.error("Can't quarantine %s", filename)
 		#	print -2
-		#	os._exit(1)			
+		#	os._exit(1)
 	else:
 		logger.debug('Virus scan OK')
-	
+
 	return True
 # end def run_virus_scan
 
@@ -83,28 +80,28 @@ def main():
 		logging.basicConfig(
 			filename='/ADT/scripts/ftp_oag.log',
 			format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
-			datefmt='%Y-%m-%d %H:%M:%S', 
+			datefmt='%Y-%m-%d %H:%M:%S',
 			level=logging.DEBUG
 		)
 	else:
 		logging.basicConfig(
 			filename='/ADT/scripts/ftp_oag.log',
 			format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
-			datefmt='%Y-%m-%d %H:%M:%S', 
+			datefmt='%Y-%m-%d %H:%M:%S',
 			level=logging.INFO
 		)
 
 
 	logger=logging.getLogger()
-	
+
 	logger.info("Starting")
-	
+
 	status=1
 
 	# Main
-	
+
 	ProxySock.setup_http_proxy(os.environ['proxy'], 3128)
-	
+
 	oaghistory=gdbm.open('oaghistory.db','c')
 
 	if not os.path.exists(download_dir):
@@ -112,7 +109,7 @@ def main():
 
 	if not os.path.exists(archive_dir):
 		os.makedirs(archive_dir)
-	
+
 	if not os.path.exists(staging_dir):
 		os.makedirs(staging_dir)
 
@@ -123,32 +120,32 @@ def main():
 	logger.debug("Scanning download folder %s", download_dir)
 	for f in os.listdir(download_dir):
 		logger.debug("File %s", f)
-		
+
 		match = re.search('^(1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', f, re.I)
-		
+
 		if match is not None:
 			filename=match.group(1)
-			
+
 			logger.info("File %s has been downloaded %s file found", filename, f)
-			
+
 			nf=os.path.join(archive_dir, filename)
-			
+
 			lf=os.path.join(download_dir, filename)
 			lfd=os.path.join(download_dir, f)
-			
+
 			os.rename(lf,nf)
-			
+
 			logger.info("Archived %s", filename)
-			
+
 			os.unlink(lfd)
 			#os.unlink(lf)
-			
+
 			oaghistory[filename]='D' # downloaded
-			
+
 	downloadcount=0
 
 	with ftputil.FTPHost(server, username, password) as ftp_host:
-		
+
 		try:
 			files=ftp_host.listdir(ftp_host.curdir)
 			for f in files:
@@ -161,7 +158,7 @@ def main():
 
 				if match is not None:
 					if f not in oaghistory.keys():
-						oaghistory[f]='N' # new				
+						oaghistory[f]='N' # new
 
 					if oaghistory[f] == 'N':
 						download=True
@@ -175,19 +172,19 @@ def main():
 					#protection against redownload
 					if os.path.isfile(lf) and os.path.getsize(lf) > 0 and os.path.getsize(lf) == ftp_host.stat(f).st_size:
 						logger.info("File exists")
-						
+
 						download=False
-						
+
 						oaghistory[f]='R' # ready
-						
+
 						logger.debug("purge %s", f)
-						ftp_host.remove(f)											
+						ftp_host.remove(f)
 
 					if download:
 						logger.info("Downloading %s to %s", f, lf)
-						
+
 						ftp_host.download(f, slf) # remote, local
-						
+
 						if os.path.isfile(slf) and os.path.getsize(slf) > 0 and os.path.getsize(slf) == ftp_host.stat(f).st_size:
 							logger.debug("purge %s", f)
 							ftp_host.remove(f)
@@ -196,14 +193,14 @@ def main():
 							#	oaghistory[f]='R' # ready
 							#	os.rename(slf,lf)
 							#	downloadcount+=1
-							#	
-							#	ftp_host.remove(f)											
+							#
+							#	ftp_host.remove(f)
 			# end for
-			
+
 			# batch virus scan on staging_dir for OAG
 			logger.debug("before virus scan")
 			if run_virus_scan(vscanexe, vscanopt, staging_dir):
-				for f in os.listdir(staging_dir):					
+				for f in os.listdir(staging_dir):
 					oaghistory[f]='R'
 					lf=os.path.join(download_dir,f)
 					sf=os.path.join(staging_dir,f)
@@ -214,19 +211,19 @@ def main():
 			logger.exception("Failure")
 			status=-2
 
-	# end with					
-	
+	# end with
+
 	oaghistory.close()
-	
+
 	logger.info("Downloaded %s files", downloadcount)
 
 	if downloadcount == 0:
 		status=-1
-	
+
 	logger.info("Done Status %s", status)
-	
+
 	print status
-	
+
 # end def main
 
 if __name__ == '__main__':
