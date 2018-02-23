@@ -2,9 +2,6 @@
 
 # FTP OAG Script
 # Version 2 - maytech copy
-# ben.baylis@flightregister.net
-# ben@velvetbug.com
-# Flight Register/Velvet Bug Ltd
 
 # we only need the datetime class & the static function strptime from datetime module
 
@@ -21,9 +18,9 @@ import subprocess
 import paramiko
 
 
-ssh_remote_host='<see doc for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
-ssh_remote_user='<see doc for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
-ssh_private_key='<see doc for details: /Dropbox/Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_remote_host='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_remote_user='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_private_key='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
 ssh_landing_dir='/'
 download_dir='/ADT/data/oag'
 staging_dir='/ADT/stage/oag'

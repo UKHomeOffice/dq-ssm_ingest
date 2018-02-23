@@ -2,9 +2,6 @@
 
 # FTP OAG Script
 # Version 1
-# ben.baylis@flightregister.net
-# ben@velvetbug.com
-# Flight Register/Velvet Bug Ltd
 
 # we only need the datetime class & the static function strptime from datetime module
 from datetime import datetime
@@ -101,7 +98,7 @@ def main():
 
 			if match is not None:
 				if file_xml not in oaghistory.keys():
-					oaghistory[file_xml]='N' # new
+					oaghistory[file_xml] = 'N' # new
 
 				if oaghistory[file_xml] == 'N':
 					download = True
