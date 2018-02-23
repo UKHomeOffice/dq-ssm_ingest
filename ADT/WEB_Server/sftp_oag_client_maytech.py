@@ -33,7 +33,7 @@ vscanexe='/usr/bin/clamdscan'
 vscanopt=''
 
 def ssh_login(in_host, in_user, in_keyfile):
-    logger=logging.getLogger()
+    logger = logging.getLogger()
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy()) ## This line can be removed when the host is added to the known_hosts file
     privkey = paramiko.RSAKey.from_private_key_file (in_keyfile)
@@ -46,7 +46,7 @@ def ssh_login(in_host, in_user, in_keyfile):
 
 
 def run_virus_scan(vscanexe, option, filename):
-	logger=logging.getLogger()
+	logger = logging.getLogger()
 	logger.debug("Virus Scanning %s", filename)
 	# do quarantine move using via the virus scanner
 	virus_scan_return_code = subprocess.call([vscanexe,'--quiet','--move='+quarantine_dir, option, filename])
@@ -79,13 +79,13 @@ def main():
 			level=logging.INFO
 		)
 
-	logger=logging.getLogger()
+	logger = logging.getLogger()
 	logger.info("Starting")
-	status=1
+	status = 1
 
 	# Main
 	os.chdir('/ADT/scripts')
-	oaghistory=gdbm.open('/ADT/scripts/oaghistory.db','c')
+	oaghistory = gdbm.open('/ADT/scripts/oaghistory.db','c')
 	if not os.path.exists(download_dir):
 		os.makedirs(download_dir)
 	if not os.path.exists(archive_dir):
@@ -112,30 +112,30 @@ def main():
 			os.unlink(file_done_download)
 			oaghistory[file_xml]='D' # downloaded
 
-	downloadcount=0
+	downloadcount = 0
     logger.debug("Connecting via SSH")
-    ssh=ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
+    ssh = ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
     logger.debug("Connected")
     sftp = ssh.open_sftp()
 
 	try:
 		sftp.chdir(ssh_landing_dir)
-		files=sftp.listdir()
+		files = sftp.listdir()
 		for file_xml in files:
-			match=re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', file_xml, re.I)
-			download=False
+			match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', file_xml, re.I)
+			download = False
 			if match is not None:
 				if file_xml not in oaghistory.keys():
 					oaghistory[file_xml]='N' # new
 
                 if oaghistory[file_xml] == 'N':
-					download=True
+					download = True
 				else:
 					logger.debug("Skipping %s", file_xml)
 					continue
 
-                file_xml_download=os.path.join(download_dir,file_xml)
-				file_xml_staging=os.path.join(staging_dir,file_xml)
+                file_xml_download = os.path.join(download_dir,file_xml)
+				file_xml_staging = os.path.join(staging_dir,file_xml)
 
 				#protection against redownload
 				if os.path.isfile(file_xml_staging) and os.path.getsize(file_xml_staging) > 0 and os.path.getsize(file_xml_staging) == sftp.stat(file_xml).st_size:
@@ -161,8 +161,8 @@ def main():
 	if run_virus_scan(vscanexe, vscanopt, staging_dir):
 		for f in os.listdir(staging_dir):
 			oaghistory[f]='R'
-			file_download=os.path.join(download_dir,f)
-			file_staging=os.path.join(staging_dir,f)
+			file_download = os.path.join(download_dir,f)
+			file_staging = os.path.join(staging_dir,f)
 			logger.debug("move %s from staging to download %s",file_staging ,file_download)
 			os.rename(file_staging,file_download)
 			downloadcount+=1
