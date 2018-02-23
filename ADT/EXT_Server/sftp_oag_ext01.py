@@ -2,9 +2,6 @@
 
 # FTP OAG Script
 # Version 1
-# ben.baylis@flightregister.net
-# ben@velvetbug.com
-# Flight Register/Velvet Bug Ltd
 
 # we only need the datetime class & the static function strptime from datetime module
 from datetime import datetime
@@ -54,22 +51,22 @@ def main():
 		logging.basicConfig(
 			filename='/ADT/log/sftp_oag_'+YYYYMMDDSTR+'.log',
 			format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
-			datefmt='%Y-%m-%d %H:%M:%S', 
+			datefmt='%Y-%m-%d %H:%M:%S',
 			level=logging.DEBUG
 		)
 	else:
 		logging.basicConfig(
 			filename='/ADT/log/sftp_oag_'+YYYYMMDDSTR+'.log',
 			format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
-			datefmt='%Y-%m-%d %H:%M:%S', 
+			datefmt='%Y-%m-%d %H:%M:%S',
 			level=logging.INFO
 		)
 
 
 	logger=logging.getLogger()
-	
+
 	logger.info("Starting")
-	
+
 	status=1
 	downloadcount=0
 
@@ -78,15 +75,15 @@ def main():
 
 	if not os.path.exists(download_dir):
 		os.makedirs(download_dir)
-	
+
 	logger.debug("Connecting via SSH")
-	
+
 	ssh=ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
-	
+
 	logger.debug("Connected")
-	
+
 	sftp = ssh.open_sftp()
-	
+
 	try:
 		sftp.chdir(download_dir)
 
@@ -101,7 +98,7 @@ def main():
 
 			if match is not None:
 				if f not in oaghistory.keys():
-					oaghistory[f]='N' # new				
+					oaghistory[f]='N' # new
 
 				if oaghistory[f] == 'N':
 					download=True
@@ -129,23 +126,23 @@ def main():
 						#if run_virus_scan(vscanexe, vscanopt, lf):
 						oaghistory[f]='R' # ready
 						downloadcount+=1
-						
+
 						lfd=lf+'.done'
 						open(lfd,'w').close()
-						
+
 						sftp.put(lfd, os.path.basename(lfd)) # local, remote
 		# end for
 	except:
 		logger.exception("Failure")
 		status=-2
-	
+
 	oaghistory.close()
-	
+
 	logger.info("Downloaded %s files", downloadcount)
 
 	if downloadcount == 0:
 		status=-1
-	
+
 	logger.info("Status %s", status)
 
 	print status

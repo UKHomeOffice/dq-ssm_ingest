@@ -2,9 +2,6 @@
 
 # FTP OAG Script
 # Version 2 - maytech copy
-# ben.baylis@flightregister.net
-# ben@velvetbug.com
-# Flight Register/Velvet Bug Ltd
 
 # we only need the datetime class & the static function strptime from datetime module
 
@@ -21,10 +18,10 @@ import subprocess
 import paramiko
 
 
-ssh_remote_host='hodq.ftpstream.com'
-ssh_remote_user='oag_preprod'
-ssh_private_key='/home/SSM/.ssh/id_rsa'
-ssh_landing_dir='/' 
+ssh_remote_host='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_remote_user='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_private_key='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
+ssh_landing_dir='/'
 download_dir='/ADT/data/oag'
 staging_dir='/ADT/stage/oag'
 archive_dir='/ADT/archive/oag'
@@ -68,14 +65,14 @@ def main():
 		logging.basicConfig(
 			filename='/ADT/scripts/sftp_oag_maytech.log',
 			format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
-			datefmt='%Y-%m-%d %H:%M:%S', 
+			datefmt='%Y-%m-%d %H:%M:%S',
 			level=logging.DEBUG
 		)
 	else:
 		logging.basicConfig(
 			filename='/ADT/scripts/sftp_oag_maytech.log',
 			format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
-			datefmt='%Y-%m-%d %H:%M:%S', 
+			datefmt='%Y-%m-%d %H:%M:%S',
 			level=logging.INFO
 		)
 
@@ -101,7 +98,7 @@ def main():
 	for f in os.listdir(download_dir):
 		logger.debug("File %s", f)
 		match = re.search('^(1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', f, re.I)
-		
+
 		if match is not None:
 			filename=match.group(1)
 			logger.info("File %s has been downloaded %s file found", filename, f)
@@ -112,22 +109,22 @@ def main():
 			logger.info("Archived %s", filename)
 			os.unlink(lfd)
 			oaghistory[filename]='D' # downloaded
-			
+
 	downloadcount=0
         logger.debug("Connecting via SSH")
         ssh=ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
         logger.debug("Connected")
         sftp = ssh.open_sftp()
-		
+
 	try:
-		sftp.chdir(ssh_landing_dir) 
+		sftp.chdir(ssh_landing_dir)
 		files=sftp.listdir()
 		for f in files:
 			match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', f, re.I)
 			download=False
 			if match is not None:
 				if f not in oaghistory.keys():
-					oaghistory[f]='N' # new				
+					oaghistory[f]='N' # new
 				if oaghistory[f] == 'N':
 					download=True
 				else:
@@ -138,11 +135,11 @@ def main():
 
 				#protection against redownload
 				if os.path.isfile(slf) and os.path.getsize(slf) > 0 and os.path.getsize(slf) == sftp.stat(f).st_size:
-					logger.info("File exists")		
+					logger.info("File exists")
 					download=False
 					oaghistory[f]='R' # ready
 					logger.debug("purge %s", f)
-					sftp.remove(f)											
+					sftp.remove(f)
 				if download:
 					logger.info("Downloading %s to %s", f, slf)
 					sftp.get(f, slf) # remote, local
@@ -154,19 +151,19 @@ def main():
 	except:
 		logger.exception("Failure")
 		status=-2
-	# end with					
+	# end with
 
 	# batch virus scan on staging_dir for OAG
 	logger.debug("before virus scan")
 	if run_virus_scan(vscanexe, vscanopt, staging_dir):
-		for f in os.listdir(staging_dir):					
+		for f in os.listdir(staging_dir):
 			oaghistory[f]='R'
 			lf=os.path.join(download_dir,f)
 			sf=os.path.join(staging_dir,f)
 			logger.debug("move %s from staging to download %s",sf ,lf)
 			os.rename(sf,lf)
 			downloadcount+=1
-	
+
 	oaghistory.close()
 	logger.info("Downloaded %s files", downloadcount)
 
@@ -175,7 +172,7 @@ def main():
 
 	logger.info("Done Status %s", status)
 	print status
-	
+
 # end def main
 
 if __name__ == '__main__':
