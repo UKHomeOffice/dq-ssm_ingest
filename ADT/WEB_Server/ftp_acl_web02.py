@@ -144,7 +144,7 @@ def main():
 						continue
 
 					file_csv_download = os.path.join(download_dir,file_csv)
-					file_csv_download = os.path.join(staging_dir,file_csv)
+					file_csv_staging = os.path.join(staging_dir,file_csv)
 
 					#protection against redownload
 					if os.path.isfile(file_csv_download) and os.path.getsize(file_csv_download) > 0 and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
@@ -155,17 +155,17 @@ def main():
 					if download:
 						logger.info("Downloading %s to %s", file_csv, file_csv_download)
 
-						ftp_host.download(file_csv, file_csv_download) # remote, local (staging)
+						ftp_host.download(file_csv, file_csv_staging) # remote, local (staging)
 
-						logger.debug("downloaded %s to %s", file_csv, file_csv_download)
+						logger.debug("downloaded %s to %s", file_csv, file_csv_staging)
 
-						if os.path.isfile(file_csv_download) and os.path.getsize(file_csv_download) > 0 and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
+						if os.path.isfile(file_csv_staging) and os.path.getsize(file_csv_staging) > 0 and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
 							logger.debug("before virus scan")
-							if run_virus_scan(vscanexe, vscanopt, file_csv_download):
+							if run_virus_scan(vscanexe, vscanopt, file_csv_staging):
 								aclhistory[file_csv]='R' # ready
 
 								# move from staging to live
-								os.rename(file_csv_download,file_csv_download)
+								os.rename(file_csv_staging,file_csv_download)
 
 								downloadcount+=1
 			# end for
