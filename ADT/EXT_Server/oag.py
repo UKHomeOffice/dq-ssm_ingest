@@ -1,6 +1,6 @@
 ## OAG Import Module
 
-# OAG Flight Status XML Import 
+# OAG Flight Status XML Import
 # Version 5
 # 2015-10-30
 
@@ -24,165 +24,165 @@ module_logger = logging.getLogger('oag')
 # Build sql statements using named parameters
 
 _sql={
-	'oag_flight' : """	
-		insert into oag_flight 
-		( 
-			flight_transid, 
-			flight_sent_utc_datetime, 
-			flight_utcloc, 
+	'oag_flight' : """
+		insert into oag_flight
+		(
+			flight_transid,
+			flight_sent_utc_datetime,
+			flight_utcloc,
 			flight_sent_datetime,
 			flight_oag_type
 		)
 		values
-		( 
-			%(flight_transid)s, 
-			%(flight_sent_utc_datetime)s, 
-			%(flight_utcloc)s, 
+		(
+			%(flight_transid)s,
+			%(flight_sent_utc_datetime)s,
+			%(flight_utcloc)s,
 			%(flight_sent_datetime)s,
 			%(flight_oag_type)s
-		) 
+		)
 		returning flight_id
 	""",
-	
+
 	'oag_carrier' : """
-		insert into oag_carrier 
-		( 
-			carrier_flight_id, 
-			carrier_code, 
+		insert into oag_carrier
+		(
+			carrier_flight_id,
+			carrier_code,
 			carrier_flightnumber,
 			carrier_codeshare_type
-		)  
-		values 
-		( 
-			%(carrier_flight_id)s, 
-			%(carrier_code)s, 
+		)
+		values
+		(
+			%(carrier_flight_id)s,
+			%(carrier_code)s,
 			%(carrier_flightnumber)s,
 			%(carrier_codeshare_type)s
 		)
 	""",
 
 	'oag_leg' : """
-		insert into oag_leg 
-		( 
-			leg_arr_apt, 
-			leg_aircraft_ch, 
-			leg_dep_checkin_act, 
-			leg_dep_offblock_ch, 
-			leg_arr_onblock_est_datetime, 
-			leg_arr_delay_stat, 
-			leg_aircraft_reg_ch, 
-			leg_dep_trm_act, 
-			leg_dep_checkin_ch, 
-			leg_dep_delay_stat, 
-			leg_service_type, 
-			leg_arr_gate_ch, 
-			leg_dep_trm_ch, 
-			leg_arr_delay_det, 
-			leg_dep_airborne_ch, 
-			leg_arr_trm_act, 
-			leg_arr_trm_ch, 
-			leg_arr_down_ch, 
-			leg_flight_id, 
-			leg_arr_onblock_act_datetime, 
-			leg_dep_offblock_est_datetime, 
-			leg_dep_datetime_act_datetime, 
-			leg_arr_datetime_act_datetime, 
-			leg_dep_delay_catid, 
-			leg_arr_gate_act, 
+		insert into oag_leg
+		(
+			leg_arr_apt,
+			leg_aircraft_ch,
+			leg_dep_checkin_act,
+			leg_dep_offblock_ch,
+			leg_arr_onblock_est_datetime,
+			leg_arr_delay_stat,
+			leg_aircraft_reg_ch,
+			leg_dep_trm_act,
+			leg_dep_checkin_ch,
+			leg_dep_delay_stat,
+			leg_service_type,
+			leg_arr_gate_ch,
+			leg_dep_trm_ch,
+			leg_arr_delay_det,
+			leg_dep_airborne_ch,
+			leg_arr_trm_act,
+			leg_arr_trm_ch,
+			leg_arr_down_ch,
+			leg_flight_id,
+			leg_arr_onblock_act_datetime,
+			leg_dep_offblock_est_datetime,
+			leg_dep_datetime_act_datetime,
+			leg_arr_datetime_act_datetime,
+			leg_dep_delay_catid,
+			leg_arr_gate_act,
 			leg_aircraft_schd,
-			leg_dep_datetime_schd_datetime, 
-			leg_arr_city, 
-			leg_dep_datetime_est_datetime, 
-			leg_dep_offblock_act_datetime, 
-			leg_dep_delay_det, 
-			leg_dep_datetime_ch, 
-			leg_arr_claim_act, 
-			leg_arr_divert_city, 
-			leg_arr_delay_catid, 
-			leg_arr_datetime_ch, 
-			leg_arr_datetime_schd_datetime, 
-			leg_dep_trm_schd, 
-			leg_arr_datetime_est_datetime, 
-			leg_dep_gate_act, 
-			leg_arr_down_est_datetime, 
-			leg_dep_airborne_act_datetime, 
-			leg_arr_onblock_ch, 
-			leg_aircraft_act, 
-			leg_dep_city, 
-			leg_arr_down_act_datetime, 
-			leg_aircraft_reg_act, 
-			leg_arr_trm_schd, 
-			leg_dep_apt, 
-			leg_arr_divert_apt, 
-			leg_dep_airborne_est_datetime, 
-			leg_dep_gate_ch, 
-			leg_arr_claim_ch 
-		)  
-		values 
-		( 
-			%(leg_arr_apt)s, 
-			%(leg_aircraft_ch)s, 
-			%(leg_dep_checkin_act)s, 
-			%(leg_dep_offblock_ch)s, 
-			%(leg_arr_onblock_est_datetime)s, 
-			%(leg_arr_delay_stat)s, 
-			%(leg_aircraft_reg_ch)s, 
-			%(leg_dep_trm_act)s, 
-			%(leg_dep_checkin_ch)s, 
-			%(leg_dep_delay_stat)s, 
-			%(leg_service_type)s, 
-			%(leg_arr_gate_ch)s, 
-			%(leg_dep_trm_ch)s, 
-			%(leg_arr_delay_det)s, 
-			%(leg_dep_airborne_ch)s, 
-			%(leg_arr_trm_act)s, 
-			%(leg_arr_trm_ch)s, 
-			%(leg_arr_down_ch)s, 
-			%(leg_flight_id)s, 
-			%(leg_arr_onblock_act_datetime)s, 
-			%(leg_dep_offblock_est_datetime)s, 
-			%(leg_dep_datetime_act_datetime)s, 
-			%(leg_arr_datetime_act_datetime)s, 
-			%(leg_dep_delay_catid)s, 
-			%(leg_arr_gate_act)s, 
-			%(leg_aircraft_schd)s, 
-			%(leg_dep_datetime_schd_datetime)s, 
-			%(leg_arr_city)s, 
-			%(leg_dep_datetime_est_datetime)s, 
-			%(leg_dep_offblock_act_datetime)s, 
-			%(leg_dep_delay_det)s, 
-			%(leg_dep_datetime_ch)s, 
-			%(leg_arr_claim_act)s, 
-			%(leg_arr_divert_city)s, 
-			%(leg_arr_delay_catid)s, 
-			%(leg_arr_datetime_ch)s, 
+			leg_dep_datetime_schd_datetime,
+			leg_arr_city,
+			leg_dep_datetime_est_datetime,
+			leg_dep_offblock_act_datetime,
+			leg_dep_delay_det,
+			leg_dep_datetime_ch,
+			leg_arr_claim_act,
+			leg_arr_divert_city,
+			leg_arr_delay_catid,
+			leg_arr_datetime_ch,
+			leg_arr_datetime_schd_datetime,
+			leg_dep_trm_schd,
+			leg_arr_datetime_est_datetime,
+			leg_dep_gate_act,
+			leg_arr_down_est_datetime,
+			leg_dep_airborne_act_datetime,
+			leg_arr_onblock_ch,
+			leg_aircraft_act,
+			leg_dep_city,
+			leg_arr_down_act_datetime,
+			leg_aircraft_reg_act,
+			leg_arr_trm_schd,
+			leg_dep_apt,
+			leg_arr_divert_apt,
+			leg_dep_airborne_est_datetime,
+			leg_dep_gate_ch,
+			leg_arr_claim_ch
+		)
+		values
+		(
+			%(leg_arr_apt)s,
+			%(leg_aircraft_ch)s,
+			%(leg_dep_checkin_act)s,
+			%(leg_dep_offblock_ch)s,
+			%(leg_arr_onblock_est_datetime)s,
+			%(leg_arr_delay_stat)s,
+			%(leg_aircraft_reg_ch)s,
+			%(leg_dep_trm_act)s,
+			%(leg_dep_checkin_ch)s,
+			%(leg_dep_delay_stat)s,
+			%(leg_service_type)s,
+			%(leg_arr_gate_ch)s,
+			%(leg_dep_trm_ch)s,
+			%(leg_arr_delay_det)s,
+			%(leg_dep_airborne_ch)s,
+			%(leg_arr_trm_act)s,
+			%(leg_arr_trm_ch)s,
+			%(leg_arr_down_ch)s,
+			%(leg_flight_id)s,
+			%(leg_arr_onblock_act_datetime)s,
+			%(leg_dep_offblock_est_datetime)s,
+			%(leg_dep_datetime_act_datetime)s,
+			%(leg_arr_datetime_act_datetime)s,
+			%(leg_dep_delay_catid)s,
+			%(leg_arr_gate_act)s,
+			%(leg_aircraft_schd)s,
+			%(leg_dep_datetime_schd_datetime)s,
+			%(leg_arr_city)s,
+			%(leg_dep_datetime_est_datetime)s,
+			%(leg_dep_offblock_act_datetime)s,
+			%(leg_dep_delay_det)s,
+			%(leg_dep_datetime_ch)s,
+			%(leg_arr_claim_act)s,
+			%(leg_arr_divert_city)s,
+			%(leg_arr_delay_catid)s,
+			%(leg_arr_datetime_ch)s,
 			%(leg_arr_datetime_schd_datetime)s,
-			%(leg_dep_trm_schd)s, 
-			%(leg_arr_datetime_est_datetime)s, 
-			%(leg_dep_gate_act)s, 
-			%(leg_arr_down_est_datetime)s, 
-			%(leg_dep_airborne_act_datetime)s, 
-			%(leg_arr_onblock_ch)s, 
-			%(leg_aircraft_act)s, 
-			%(leg_dep_city)s, 
-			%(leg_arr_down_act_datetime)s, 
-			%(leg_aircraft_reg_act)s, 
-			%(leg_arr_trm_schd)s, 
-			%(leg_dep_apt)s, 
-			%(leg_arr_divert_apt)s, 
-			%(leg_dep_airborne_est_datetime)s, 
-			%(leg_dep_gate_ch)s, 
-			%(leg_arr_claim_ch)s 
+			%(leg_dep_trm_schd)s,
+			%(leg_arr_datetime_est_datetime)s,
+			%(leg_dep_gate_act)s,
+			%(leg_arr_down_est_datetime)s,
+			%(leg_dep_airborne_act_datetime)s,
+			%(leg_arr_onblock_ch)s,
+			%(leg_aircraft_act)s,
+			%(leg_dep_city)s,
+			%(leg_arr_down_act_datetime)s,
+			%(leg_aircraft_reg_act)s,
+			%(leg_arr_trm_schd)s,
+			%(leg_dep_apt)s,
+			%(leg_arr_divert_apt)s,
+			%(leg_dep_airborne_est_datetime)s,
+			%(leg_dep_gate_ch)s,
+			%(leg_arr_claim_ch)s
 		)
 	""",
-	
+
 	'history' : """
-		update history 
-		set source_date=%(lastupdated)s 
+		update history
+		set source_date=%(lastupdated)s
 		where source_type='O'
 	""",
-	
-	'schd' : """	
+
+	'schd' : """
 		insert into schd
 		(
 			source,
@@ -237,11 +237,11 @@ _sql={
 			carrier_id,
 			leg_id,
 			carrier_iata as airline_iata,
-			carrier_icao as airline_icao,		 
+			carrier_icao as airline_icao,
 			carrier_flightnumber as flightnumber,
 			carrier_codeshare_type as codeshare,
 			operating_flightnumber as operating_flightnumber,
-			(case 
+			(case
 				when arr_dep = 'A' then arr_datetime::date
 				when arr_dep = 'D' then dep_datetime::date
 			end) as flight_date,
@@ -256,20 +256,20 @@ _sql={
 			leg_dep_apt as origin_iata,
 			leg_dep_apt_icao as origin_icao,
 			leg_arr_apt as destination_iata,
-			leg_arr_apt_icao as destination_icao,		
-			(case 
+			leg_arr_apt_icao as destination_icao,
+			(case
 				when arr_dep = 'A' then leg_arr_apt
 				when arr_dep = 'D' then leg_dep_apt
 			end) as airport_iata,
-			(case 
+			(case
 				when arr_dep = 'A' then leg_arr_apt_icao
 				when arr_dep = 'D' then leg_dep_apt_icao
 			end) as airport_icao,
-			(case 
+			(case
 				when arr_dep = 'A' then leg_dep_apt
 				when arr_dep = 'D' then leg_arr_apt
 			end) as last_next_iata,
-			(case 
+			(case
 				when arr_dep = 'A' then leg_dep_apt_icao
 				when arr_dep = 'D' then leg_arr_apt_icao
 			end) as last_next_icao,
@@ -289,10 +289,10 @@ _sql={
 			arr_dep as arr_dep,
 			flight_oag_type as oag_type,
 			flight_transid as flight_transid,
-			( leg_dep_apt || leg_arr_apt || to_char((case 
+			( leg_dep_apt || leg_arr_apt || to_char((case
 				when arr_dep = 'A' then arr_datetime::date
 				when arr_dep = 'D' then dep_datetime::date
-			end),'YYYYMMDD') || btrim(coalesce(carrier_iata,carrier_icao)) || btrim(carrier_flightnumber) || arr_dep) as voyageid		
+			end),'YYYYMMDD') || btrim(coalesce(carrier_iata,carrier_icao)) || btrim(carrier_flightnumber) || arr_dep) as voyageid
 		from (
 				select
 					F.flight_id,
@@ -323,67 +323,67 @@ _sql={
 					OF2.airport_timezone_name,
 					L.leg_dep_delay_catid,
 					L.leg_dep_delay_det,
-					L.leg_dep_delay_stat,	
+					L.leg_dep_delay_stat,
 					L.leg_arr_delay_catid,
 					L.leg_arr_delay_det,
-					L.leg_arr_delay_stat,	
+					L.leg_arr_delay_stat,
 					-- calculated fields
-					(case 
-						when length(C.carrier_flightnumber) < 4 
-						then '0' || C.carrier_flightnumber 
-						else C.carrier_flightnumber 
+					(case
+						when length(C.carrier_flightnumber) < 4
+						then '0' || C.carrier_flightnumber
+						else C.carrier_flightnumber
 					end) as oag_flightnumber,
-					(case 
-						when F.flight_utcloc = 'UTC' 
-						then L.leg_dep_datetime_schd_datetime 
-						else L.leg_dep_datetime_schd_datetime at time zone OF1.airport_timezone_name 
+					(case
+						when F.flight_utcloc = 'UTC'
+						then L.leg_dep_datetime_schd_datetime
+						else L.leg_dep_datetime_schd_datetime at time zone OF1.airport_timezone_name
 					end) as dep_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_arr_datetime_schd_datetime
-						else L.leg_arr_datetime_schd_datetime at time zone OF2.airport_timezone_name 
+						else L.leg_arr_datetime_schd_datetime at time zone OF2.airport_timezone_name
 					end) as arr_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_dep_datetime_est_datetime
-						else L.leg_dep_datetime_est_datetime at time zone OF1.airport_timezone_name 
+						else L.leg_dep_datetime_est_datetime at time zone OF1.airport_timezone_name
 					end) as dep_est_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_dep_datetime_act_datetime
-						else L.leg_dep_datetime_act_datetime at time zone OF1.airport_timezone_name 
+						else L.leg_dep_datetime_act_datetime at time zone OF1.airport_timezone_name
 					end) as dep_act_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_dep_offblock_act_datetime
-						else L.leg_dep_offblock_act_datetime at time zone OF1.airport_timezone_name 
+						else L.leg_dep_offblock_act_datetime at time zone OF1.airport_timezone_name
 					end) as offblock_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_dep_airborne_act_datetime
-						else L.leg_dep_airborne_act_datetime at time zone OF1.airport_timezone_name 
+						else L.leg_dep_airborne_act_datetime at time zone OF1.airport_timezone_name
 					end) as airborne_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_arr_down_act_datetime
-						else L.leg_arr_down_act_datetime at time zone OF2.airport_timezone_name 
+						else L.leg_arr_down_act_datetime at time zone OF2.airport_timezone_name
 					end) as down_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_arr_onblock_act_datetime
-						else L.leg_arr_onblock_act_datetime at time zone OF2.airport_timezone_name 
+						else L.leg_arr_onblock_act_datetime at time zone OF2.airport_timezone_name
 					end) as on_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_arr_datetime_est_datetime
-						else L.leg_arr_datetime_est_datetime at time zone OF2.airport_timezone_name 
+						else L.leg_arr_datetime_est_datetime at time zone OF2.airport_timezone_name
 					end) as arr_est_datetime,
-					(case 
-						when F.flight_utcloc = 'UTC' 
+					(case
+						when F.flight_utcloc = 'UTC'
 						then L.leg_arr_datetime_act_datetime
-						else L.leg_arr_datetime_act_datetime at time zone OF2.airport_timezone_name 
+						else L.leg_arr_datetime_act_datetime at time zone OF2.airport_timezone_name
 					end) as arr_act_datetime,
-					(case 
+					(case
 						when IA.airport_iata = leg_dep_apt then 'D'
 						when IA.airport_iata = leg_arr_apt then 'A'
 					end) as arr_dep,
@@ -394,9 +394,9 @@ _sql={
 					(case
 						when leg_aircraft_ch = 'Y' then AA1.aircraft_icao
 						else AA2.aircraft_icao
-					end) as aircraft_icao,				
-					T.servicetype_pax,				
-					'O' as source				
+					end) as aircraft_icao,
+					T.servicetype_pax,
+					'O' as source
 				from oag_flight F
 				join oag_leg L
 					on L.leg_flight_id = F.flight_id
@@ -404,13 +404,13 @@ _sql={
 					on C.carrier_flight_id = F.flight_id
 					and carrier_codeshare_type is not null
 				join of_airlines OFA
-					on OFA.airline_iata = C.carrier_code 
-					and airline_active='Y'				
+					on OFA.airline_iata = C.carrier_code
+					and airline_active='Y'
 				join of_airports OF1
 					on OF1.airport_iata = leg_dep_apt
 				join of_airports OF2
 					on OF2.airport_iata = leg_arr_apt
-				join servicetypes T 
+				join servicetypes T
 					on L.leg_service_type = servicetype_code
 				join interested_airports IA
 					on IA.airport_iata = leg_dep_apt
@@ -419,21 +419,21 @@ _sql={
 					on CS.carrier_flight_id = F.flight_id
 					and ( CS.carrier_codeshare_type is null or CS.carrier_codeshare_type = 0 )
 					and C.carrier_codeshare_type = 1
-				left join bb_aircraft AA1 
+				left join bb_aircraft AA1
 					on leg_aircraft_act = AA1.aircraft_iata
-				left join bb_aircraft AA2 
+				left join bb_aircraft AA2
 					on leg_aircraft_schd = AA2.aircraft_iata
 				where
 					flight_sent_utc_datetime > (select coalesce(max(lastupdated),'2015-01-01'::date) as d from schd where source='O')
 					-- flight_sent_utc_datetime::date >= '2015-09-14'::date
 		) Z
-		order by 
+		order by
 			dep_datetime,
 			arr_datetime,
 			carrier_code,
-			carrier_flightnumber,		
+			carrier_flightnumber,
 			flight_sent_utc_datetime,
-			flight_id	
+			flight_id
 	""",
 
 	'file_check' : """
@@ -442,7 +442,7 @@ _sql={
 		from oag_files
 		where filename = %(filename)s
 	""",
-	
+
 	'file_update' : """
 		insert into oag_files
 		(
@@ -469,42 +469,42 @@ def _process_file(dbh,xml):
 
 	if xml.NodeType() == libxml2.XML_READER_TYPE_ELEMENT and xml.Name() == 'FIMSSR':
 		module_logger.debug('FIMSSR %s %s',xml.NodeType(),xml.Name())
-		
+
 		# process FIMSSR wrapper
 		sent=xml.GetAttribute('Sent')
 		sentutc=xml.GetAttribute('UTCSent')
 		locutc=xml.GetAttribute('UTCLOCInd')
-				
+
 		# Flight Loop
 		while xml.Read():
 			module_logger.debug('X %s %s',xml.NodeType(),xml.Name())
-				
+
 			if xml.NodeType() == libxml2.XML_READER_TYPE_ELEMENT and xml.Name() == 'Flight':
 				module_logger.debug('Flight %s %s',xml.NodeType(),xml.Name())
-				
-				carrier={ 
-					'carrier_code' : None, 
-					'carrier_flightnumber' : None, 
+
+				carrier={
+					'carrier_code' : None,
+					'carrier_flightnumber' : None,
 					'carrier_flight_id' : None,
 					'carrier_codeshare_type' : 0
 				}
 
 				# transid is OAG's unique ID - but all codeshares have the same transid
 				transid=xml.GetAttribute('TransId')
-				
+
 				oagtype='U'
-				
+
 				if transid[0] == 'S':
 					oagtype='S'
-								
+
 				carrier['carrier_code']=xml.GetAttribute('Carrier')
 				carrier['carrier_flightnumber']=xml.GetAttribute('FltNo')
-				
+
 				carrier_uniq=carrier['carrier_code']+'#'+carrier['carrier_flightnumber']
 
 				module_logger.debug("F %s %s %s", transid, carrier, oagtype)
 
-				flight={ 
+				flight={
 					'flight_id' : None,
 					'flight_transid' : transid,
 					'flight_sent_datetime' : sent,
@@ -514,25 +514,25 @@ def _process_file(dbh,xml):
 					'carriers' : {},
 					'legs' : [],
 				}
-				
+
 				flight['carriers'][carrier_uniq]=carrier
-				
+
 				# Leg Loop
 				while xml.Read():
 					module_logger.debug('X %s %s',xml.NodeType(),xml.Name())
 
 					if xml.NodeType() == libxml2.XML_READER_TYPE_ELEMENT and xml.Name() == 'Leg':
 						module_logger.debug('Leg %s %s',xml.NodeType(),xml.Name())
-						
+
 						_process_leg(xml,flight)
-						
+
 					if xml.NodeType() == libxml2.XML_READER_TYPE_END_ELEMENT and xml.Name() == 'Flight':
-						break					
+						break
 				# end Leg Loop
-				
+
 				if transid in flights:
 					# if transid exists we have seen this flight before
-					
+
 					# add code share only - discard duplicated data
 					for c in flight['carriers']:
 						if c in flights[transid]['carriers']:
@@ -544,25 +544,25 @@ def _process_file(dbh,xml):
 				else:
 					# new flight
 					flights[transid]=flight
-					
+
 				module_logger.debug(flights[transid])
 
 		#end Flight Loop
 
 	# end if FIMSSR
-	
+
 	# insert flights into DB
-	
+
 	for transid in flights:
-		
+
 		try:
 			module_logger.debug("Insert %s", transid)
-				
+
 			csr=dbh.cursor()
-			
+
 			# use named bind parameters
 			csr.execute( _sql['oag_flight'],
-				{ 
+				{
 					'flight_transid' : flights[transid]['flight_transid'],
 					'flight_sent_datetime' : flights[transid]['flight_sent_datetime'],
 					'flight_sent_utc_datetime' : flights[transid]['flight_sent_utc_datetime'],
@@ -570,66 +570,66 @@ def _process_file(dbh,xml):
 					'flight_oag_type' : flights[transid]['flight_oag_type'],
 				}
 			)
-			
+
 			module_logger.debug("Q %s", csr.query)
 			module_logger.debug("R %s", csr.statusmessage)
-			
+
 			# get flight_id via the "returning" clause
 			flight_id = csr.fetchone()[0]
-			
+
 			module_logger.debug("Flight ID %s", flight_id)
 
 			if flight_id:
 				for c in flights[transid]['carriers']:
 					carrier=flights[transid]['carriers'][c]
-					
+
 					module_logger.debug("Carrier %s %s %s", c, carrier['carrier_code'], carrier['carrier_flightnumber'])
-					
+
 					carrier['carrier_flight_id']=flight_id
-					
+
 					# we can use a dictionary as named bind parameter
 					csr.execute( _sql['oag_carrier'], carrier )
-					
+
 					module_logger.debug("Q %s", csr.query)
 					module_logger.debug("R %s", csr.statusmessage)
-					
+
 				for leg in flights[transid]['legs']:
 					module_logger.debug("Leg")
-					
+
 					leg['leg_flight_id']=flight_id
-					
+
 					# we can use a dictionary as named bind parameter
 					csr.execute( _sql['oag_leg'], leg )
-					
+
 					module_logger.debug("Q %s", csr.query)
 					module_logger.debug("R %s", csr.statusmessage)
-				
+
 				csr.execute( _sql['history'],  { 'lastupdated' : sentutc } )
 
 				module_logger.debug("Q %s", csr.query)
 				module_logger.debug("R %s", csr.statusmessage)
 
-				
+
 			csr.close()
 
 			module_logger.debug("Commit")
 
 			dbh.commit()
-			
-		except:	
+
+		except:
 			module_logger.exception("Rollback")
 
 			csr.close()
-			
+
 			dbh.rollback()
-			
+
 			status=-2
 			message="Database error"
-			
+
 	#end for
 
-	return status, message	
-	
+	return status, message
+
 # end def _process_file
 
 
@@ -664,7 +664,7 @@ def _process_leg(xml,flight):
 		'leg_arr_trm_schd' : None,
 		'leg_arr_apt' : None,
 		'leg_arr_city' : None,
-		
+
 		'leg_dep_airborne_act_datetime' : None,
 		'leg_dep_airborne_ch' : None,
 		'leg_dep_airborne_est_datetime' : None,
@@ -687,16 +687,16 @@ def _process_leg(xml,flight):
 		'leg_dep_trm_schd' : None,
 		'leg_dep_apt' : None,
 		'leg_dep_city' : None,
-		
+
 		'leg_aircraft_reg_act' : None,
 		'leg_aircraft_reg_ch' : None,
 		'leg_aircraft_act' : None,
 		'leg_aircraft_ch' : None,
-		'leg_aircraft_schd' : None,				
+		'leg_aircraft_schd' : None,
 	}
-		
+
 	leg['leg_service_type']=xml.GetAttribute('SvcTypeCd')
-	
+
 	while xml.Read():
 		module_logger.debug('X %s %s',xml.NodeType(),xml.Name())
 
@@ -711,14 +711,14 @@ def _process_leg(xml,flight):
 
 		if xml.NodeType() == libxml2.XML_READER_TYPE_END_ELEMENT and xml.Name() == 'Leg':
 			break
-			
+
 	flight['legs'].append(leg)
 
 # end def _process_leg
 
 def _process_leg_equip(xml,leg):
 	module_logger.debug('Equip %s %s',xml.NodeType(),xml.Name())
-		
+
 	leg['leg_aircraft_schd']=xml.GetAttribute('Schd')
 	leg['leg_aircraft_ch']=xml.GetAttribute('Ch')
 	leg['leg_aircraft_act']=xml.GetAttribute('Act')
@@ -733,7 +733,7 @@ def _process_leg_equip(xml,leg):
 				leg['leg_aircraft_reg_ch']=xml.GetAttribute('Ch')
 				leg['leg_aircraft_reg_act']=xml.GetAttribute('Act')
 				break
-			
+
 			if xml.NodeType() == libxml2.XML_READER_TYPE_END_ELEMENT and xml.Name() == 'Equip':
 				break
 
@@ -743,9 +743,9 @@ def _process_leg_codeshare(xml,flight):
 	module_logger.debug('CodeShare %s %s',xml.NodeType(),xml.Name())
 
 	carrier_codeshare_type=xml.GetAttribute('Type')
-	
+
 	module_logger.debug("CS Type %s", carrier_codeshare_type)
-	
+
 	if carrier_codeshare_type == '1':
 		carrier_code=xml.GetAttribute('Desig')
 		carrier_flightnumber=xml.GetAttribute('FltNo')
@@ -753,23 +753,23 @@ def _process_leg_codeshare(xml,flight):
 		carrier_uniq=carrier_code+'#'+carrier_flightnumber
 
 		module_logger.debug("CS U %s",carrier_uniq)
-			
+
 		# flag all carriers that don't match the metal carrier
 		# however only 1 carrier should be in the flight so we could flag them all
 		for c in flight['carriers']:
 			module_logger.debug("CS C %s", c)
 			if c != carrier_uniq:
 				flight['carriers'][c]['carrier_codeshare_type']=1 # code share
-		
+
 		if not carrier_uniq in flight['carriers']:
-			carrier={ 
-				'carrier_code' : carrier_code, 
-				'carrier_flightnumber' : carrier_flightnumber, 
+			carrier={
+				'carrier_code' : carrier_code,
+				'carrier_flightnumber' : carrier_flightnumber,
 				'carrier_flight_id' : None,
 				'carrier_codeshare_type' : None # metal for info only
 			}
 			flight['carriers'][carrier_uniq]=carrier
-		
+
 # end def _process_leg_codeshare
 
 def _process_leg_dep(xml, leg):
@@ -828,7 +828,7 @@ def _process_leg_dep(xml, leg):
 			leg['leg_dep_delay_catid']=xml.GetAttribute('CatId')
 			leg['leg_dep_delay_det']=xml.GetAttribute('Det')
 			leg['leg_dep_delay_stat']=xml.GetAttribute('Stat')
-			
+
 		if xml.NodeType() == libxml2.XML_READER_TYPE_END_ELEMENT and xml.Name() == 'Dep':
 			break
 
@@ -864,7 +864,7 @@ def _process_leg_arr(xml, leg):
 
 		if xml.NodeType() == libxml2.XML_READER_TYPE_ELEMENT and xml.Name() == 'DateTime':
 			module_logger.debug('DateTime %s %s',xml.NodeType(),xml.Name())
-			
+
 			leg['leg_arr_datetime_ch']=xml.GetAttribute('Ch')
 			leg['leg_arr_datetime_act_datetime']=xml.GetAttribute('Act')
 			leg['leg_arr_datetime_schd_datetime']=xml.GetAttribute('Schd')
@@ -879,7 +879,7 @@ def _process_leg_arr(xml, leg):
 
 		if xml.NodeType() == libxml2.XML_READER_TYPE_ELEMENT and xml.Name() == 'Down':
 			module_logger.debug('Down %s %s',xml.NodeType(),xml.Name())
-			
+
 			leg['leg_arr_down_ch']=xml.GetAttribute('Ch')
 			leg['leg_arr_down_act_datetime']=xml.GetAttribute('Act')
 			leg['leg_arr_down_est_datetime']=xml.GetAttribute('Est')
@@ -905,10 +905,10 @@ def _process_leg_arr(xml, leg):
 
 def _schdupdate(dbh):
 	module_logger.info("schd update")
-	
+
 	status=1
 	message='OK'
-	
+
 	try:
 		module_logger.debug("SCHD update")
 
@@ -925,7 +925,7 @@ def _schdupdate(dbh):
 
 		dbh.commit()
 
-	except:	
+	except:
 		module_logger.exception("Rollback")
 
 		csr.close()
