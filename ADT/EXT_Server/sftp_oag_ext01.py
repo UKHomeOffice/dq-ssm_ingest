@@ -24,12 +24,12 @@ import paramiko # reqd for SSH/SFTP "yum install python-paramiko"
 
 download_dir='/ADT/data/oag'
 
-ssh_remote_host=os.environ['ssh_remote_host']
-ssh_remote_user=os.environ['ssh_remote_user']
-ssh_private_key=os.environ['ssh_private_key']
+ssh_remote_host = os.environ['ssh_remote_host']
+ssh_remote_user = os.environ['ssh_remote_user']
+ssh_private_key = os.environ['ssh_private_key']
 
 def ssh_login(in_host, in_user, in_keyfile):
-	logger=logging.getLogger()
+	logger = logging.getLogger()
 
 	ssh = paramiko.SSHClient()
 	ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy()) ## This line can be removed when the host is added to the known_hosts file
@@ -54,98 +54,98 @@ def main():
 		logging.basicConfig(
 			filename='/ADT/log/sftp_oag_'+YYYYMMDDSTR+'.log',
 			format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
-			datefmt='%Y-%m-%d %H:%M:%S', 
+			datefmt='%Y-%m-%d %H:%M:%S',
 			level=logging.DEBUG
 		)
 	else:
 		logging.basicConfig(
 			filename='/ADT/log/sftp_oag_'+YYYYMMDDSTR+'.log',
 			format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
-			datefmt='%Y-%m-%d %H:%M:%S', 
+			datefmt='%Y-%m-%d %H:%M:%S',
 			level=logging.INFO
 		)
 
 
-	logger=logging.getLogger()
-	
+	logger = logging.getLogger()
+
 	logger.info("Starting")
-	
-	status=1
-	downloadcount=0
+
+	status = 1
+	downloadcount = 0
 
 	# Main
-	oaghistory=gdbm.open('oaghistory.db','c')
+	oaghistory = gdbm.open('oaghistory.db','c')
 
 	if not os.path.exists(download_dir):
 		os.makedirs(download_dir)
-	
+
 	logger.debug("Connecting via SSH")
-	
-	ssh=ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
-	
+
+	ssh = ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
+
 	logger.debug("Connected")
-	
+
 	sftp = ssh.open_sftp()
-	
+
 	try:
 		sftp.chdir(download_dir)
 
 		sftp_dir_list = sftp.listdir()
 
-		for f in sftp_dir_list:
-			logger.debug("File %s", f)
+		for file_xml in sftp_dir_list:
+			logger.debug("File %s", file_xml)
 
-			match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', f, re.I)
+			match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', file_xml, re.I)
 
-			download=False
+			download = False
 
 			if match is not None:
-				if f not in oaghistory.keys():
-					oaghistory[f]='N' # new				
+				if file_xml not in oaghistory.keys():
+					oaghistory[file_xml]='N' # new
 
-				if oaghistory[f] == 'N':
-					download=True
+				if oaghistory[file_xml] == 'N':
+					download = True
 				else:
-					logger.debug("Skipping %s", f)
+					logger.debug("Skipping %s", file_xml)
 					continue
 
-				lf=os.path.join(download_dir,f)
+				file_xml_download = os.path.join(download_dir,file_xml)
 
 				#protection against redownload
-				if os.path.isfile(lf) and os.path.getsize(lf) > 0 and os.path.getsize(lf) == sftp.stat(f).st_size:
+				if os.path.isfile(file_xml_download) and os.path.getsize(file_xml_download) > 0 and os.path.getsize(file_xml_download) == sftp.stat(file_xml).st_size:
 					logger.info("File exists")
-					download=False
-					oaghistory[f]='R' # ready
+					download = False
+					oaghistory[file_xml]='R' # ready
 
 				if download: # and match.group(3) == '20151005':
-					logger.info("Downloading %s to %s", f, lf)
+					logger.info("Downloading %s to %s", file_xml, file_xml_download)
 
-					sftp.get(f, lf) # remote, local
+					sftp.get(file_xml, file_xml_download) # remote, local
 
-					logger.debug("downloaded %s to %s", f, lf)
+					logger.debug("downloaded %s to %s", file_xml, file_xml_download)
 
-					if os.path.isfile(lf) and os.path.getsize(lf) > 0 and os.path.getsize(lf) == sftp.stat(f).st_size:
+					if os.path.isfile(file_xml_download) and os.path.getsize(file_xml_download) > 0 and os.path.getsize(file_xml_download) == sftp.stat(file_xml).st_size:
 						logger.debug("before virus scan")
-						#if run_virus_scan(vscanexe, vscanopt, lf):
-						oaghistory[f]='R' # ready
+						#if run_virus_scan(vscanexe, vscanopt, file_xml_download):
+						oaghistory[file_xml]='R' # ready
 						downloadcount+=1
-						
-						lfd=lf+'.done'
-						open(lfd,'w').close()
-						
-						sftp.put(lfd, os.path.basename(lfd)) # local, remote
+
+						file_done_download = file_xml_download + '.done'
+						open(file_done_download,'w').close()
+
+						sftp.put(file_done_download, os.path.basename(file_done_download)) # local, remote
 		# end for
 	except:
 		logger.exception("Failure")
 		status=-2
-	
+
 	oaghistory.close()
-	
+
 	logger.info("Downloaded %s files", downloadcount)
 
 	if downloadcount == 0:
 		status=-1
-	
+
 	logger.info("Status %s", status)
 
 	print status
