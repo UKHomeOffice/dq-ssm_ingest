@@ -934,47 +934,45 @@ def _schdupdate(dbh):
 
 		status=-2
 		message="Error updating schd table"
-			
+
 	return status, message
 # end def _schdupdate
 
 def _xmlerror(ctx, str):
 	module_logger.error(str)
-	#print "-2"
-	#print "XML Error",str
-	#exit(-2)
+
 	raise Exception(str)
 # end def _xmlerror
 
 def validate_file(f , renamebad=True, baddir=None):
 	#logger=logging.getLogger()
-	
+
 	if baddir is not None:
-		if not os.path.exists(baddir): 
+		if not os.path.exists(baddir):
 			os.makedirs(baddir)
-	
+
 	module_logger.info("Validating %s", f)
 
 	ok=True
-	
+
 	with open(f, 'rb') as file:
 		x = file.read()
-		
+
 		match=re.search('<FIMSSR(.*?)>(.*?)</FIMSSR>', x, re.MULTILINE|re.DOTALL)
-		
+
 		if match is None:
 			ok=False
 
 	if not ok:
-		nf=None
+		file_bad=None
 		if renamebad:
-			nf=f+'.bad'
-			os.rename(f,nf)
+			file_bad=f+'.bad'
+			os.rename(f,file_bad)
 		else:
-			nf=os.path.join(baddir, os.path.basename(f))
-			os.rename(f,nf)
-		module_logger.info("Moved Bad File %s to %s", f, nf)		
-		
+			file_bad=os.path.join(baddir, os.path.basename(f))
+			os.rename(f,file_bad)
+		module_logger.info("Moved Bad File %s to %s", f, file_bad)
+
 	return ok
 #end def validate_file
 
@@ -983,21 +981,21 @@ def importfile(dbh, filename, batch=False):
 
 	status=1
 	message='OK'
-	
+
 	if os.path.isfile(filename) and os.path.getsize(filename) > 0:
 		try:
 			module_logger.debug("Parsing")
-						
+
 			xml=libxml2.newTextReaderFilename(filename)
 			libxml2.registerErrorHandler(_xmlerror, "")
-			
+
 			while xml.Read():
 				module_logger.debug('X %s %s',xml.NodeType(),xml.Name())
 
 				if xml.NodeType() == libxml2.XML_READER_TYPE_ELEMENT and xml.Name() == 'FIMSSR':
 					module_logger.debug("Found FIMSSR %s %s",xml.NodeType(),xml.Name())
 					status, message=_process_file(dbh,xml)
-					
+
 					if status != 1:
 						module_logger.debug("Status %s bailing", status)
 						break
@@ -1007,27 +1005,27 @@ def importfile(dbh, filename, batch=False):
 			message="XML Parser Error on file "+filename
 		finally:
 			module_logger.debug("Cleanup")
-			libxml2.cleanupParser()		
+			libxml2.cleanupParser()
 	else:
 		module_logger.error("Zero size file %s", filename)
-		status=-2	
+		status=-2
 		message="Zero size or truncated file "+filename
-		
+
 	if status == 1:
 		try:
 			csr=dbh.cursor();
-			
+
 			module_logger.debug("Store filename %s", os.path.basename(filename))
-			
+
 			csr.execute( _sql['file_update'], { 'filename': os.path.basename(filename) } )
-			
+
 			csr.close()
-			
+
 			module_logger.debug("Commit")
 
 			dbh.commit()
 
-		except:	
+		except:
 			module_logger.warning("Rollback")
 
 			csr.close()
@@ -1036,98 +1034,98 @@ def importfile(dbh, filename, batch=False):
 
 			status=-1
 			message="DB error"
-	
+
 	# if not in batch the SCHD update after file
 	if status == 1 and not batch:
 		module_logger.debug("Not Batch mode, updating schd after file %s", filename)
-		status, message=_schdupdate(dbh)	
-			
+		status, message=_schdupdate(dbh)
+
 	return status, message
 #end def importfile
 
 def _sortkey(filename):
 	match=re.search('^(\d+)_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)$', filename, re.I)
-	
+
 	key=''
-	
+
 	if match is not None:
 		key=match.group(3) + match.group(4) + match.group(5) + match.group(6) + match.group(7) + match.group(8)
 	return key
-#end def _sortkey 
+#end def _sortkey
 
 def import_folder(dbh, sourcedir, archivedir=None):
 	module_logger.info("Import Folder %s %s", sourcedir, archivedir)
 	status=1
 	message='OK'
-	
+
 	archivemode=False
-	
+
 	if archivedir is not None and archivedir != sourcedir:
 		archivemode=True
-		
+
 		if not os.path.exists(archivedir):
-			os.makedirs(archivedir)	
-	
+			os.makedirs(archivedir)
+
 	csr=dbh.cursor()
-	
+
 	filecount=0
-	
+
 	if os.path.isdir(sourcedir):
 		filelist=sorted(os.listdir(sourcedir), key = _sortkey)
-		
+
 		if filelist is not None:
 			for filename in filelist:
-				f=os.path.join(sourcedir, filename)
+				file_done=os.path.join(sourcedir, filename)
 
-				if os.path.isfile(f):
+				if os.path.isfile(file_done):
 					# is it a .done file?
-					
+
 					match=re.search('^((\d+)_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', filename, re.I)
 
 					if match is not None:
 
 						# extract corresponding csv name & check it
-						
-						xmlfilename=match.group(1)
-						xf=os.path.join(sourcedir, xmlfilename)
 
-						if os.path.isfile(xf) and validate_file(xf, False, archivedir):
-							csr.execute(_sql['file_check'], { 'filename': xmlfilename } )
+						file_xml=match.group(1)
+						file_xml_source=os.path.join(sourcedir, file_xml)
+
+						if os.path.isfile(file_xml_source) and validate_file(file_xml_source, False, archivedir):
+							csr.execute(_sql['file_check'], { 'filename': file_xml } )
 
 							# if the filename isn't found
-							if csr.rowcount == 0: 
-								module_logger.debug("File found %s",xf)
+							if csr.rowcount == 0:
+								module_logger.debug("File found %s",file_xml_source)
 
-								module_logger.info("Importing %s", xf)
-								status,message=importfile(dbh, xf, True)
+								module_logger.info("Importing %s", file_xml_source)
+								status,message=importfile(dbh, file_xml_source, True)
 
 								if status != 1:
 									module_logger.debug("Status %s bailing", status)
 									break
 
 								filecount+=1
-								
+
 								# only archive if status is good & archivedir
 								if archivemode:
-									nf=os.path.join(archivedir, xmlfilename)
-									os.rename(xf,nf)
-									module_logger.debug("Archived %s", nf)
+									file_xml_archive=os.path.join(archivedir, file_xml)
+									os.rename(file_xml_source,file_xml_archive)
+									module_logger.debug("Archived %s", file_xml_archive)
 
 						# remove the .done file
-						os.unlink(f)
+						os.unlink(file_done)
 			#end for
-			
-			if filecount == 0:			
+
+			if filecount == 0:
 				module_logger.error("No files imported")
 				message="No files imported"
 			else:
-				module_logger.info("%s files imported", filecount)				
+				module_logger.info("%s files imported", filecount)
 
-				# batch update SCHD							
-				if status == 1:		
-					status,message=_schdupdate(dbh)	
-					
-				# if still ok, use old message	
+				# batch update SCHD
+				if status == 1:
+					status,message=_schdupdate(dbh)
+
+				# if still ok, use old message
 				if status == 1:
 					message="%s files imported" % filecount
 		else:
@@ -1139,7 +1137,7 @@ def import_folder(dbh, sourcedir, archivedir=None):
 		message="Source Folder not found "+sourcedir
 
 	csr.close()
-		
+
 	return status, message
-	
+
 # end def findfiles
