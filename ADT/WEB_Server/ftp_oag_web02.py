@@ -20,24 +20,23 @@ import subprocess
 # local module
 import ProxySock
 
-log_file='/ADT/scripts/ftp_oag.log'
+log_file = '/ADT/scripts/ftp_oag.log'
 
 # OAG FTP details - purge downloaded files
-server=os.environ['server']
-username=os.environ['username']
-password=os.environ['password']
+server = os.environ['server']
+username = os.environ['username']
+password = os.environ['password']
 
-#download_dir=time.strftime('%Y%m%d%H%I%S')
-download_dir='/ADT/data/oag'
-staging_dir='/ADT/stage/oag'
-archive_dir='/ADT/archive/oag'
-quarantine_dir='/ADT/quarantine/oag'
+download_dir = '/ADT/data/oag'
+staging_dir = '/ADT/stage/oag'
+archive_dir = '/ADT/archive/oag'
+quarantine_dir = '/ADT/quarantine/oag'
 
-vscanexe='/usr/bin/clamdscan'
-vscanopt=''
+vscanexe = '/usr/bin/clamdscan'
+vscanopt = ''
 
 def run_virus_scan(vscanexe, option, filename):
-	logger=logging.getLogger()
+	logger = logging.getLogger()
 	logger.debug("Virus Scanning %s", filename)
 
 	# do quarantine move using via the virus scanner
@@ -76,17 +75,17 @@ def main():
 		)
 
 
-	logger=logging.getLogger()
+	logger = logging.getLogger()
 
 	logger.info("Starting")
 
-	status=1
+	status = 1
 
 	# Main
 
 	ProxySock.setup_http_proxy(os.environ['proxy'], 3128)
 
-	oaghistory=gdbm.open('oaghistory.db','c')
+	oaghistory = gdbm.open('oaghistory.db','c')
 
 	if not os.path.exists(download_dir):
 		os.makedirs(download_dir)
@@ -108,14 +107,14 @@ def main():
 		match = re.search('^(1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', file_done, re.I)
 
 		if match is not None:
-			file_xml=match.group(1)
+			file_xml = match.group(1)
 
 			logger.info("File %s has been downloaded %s file found", file_xml, file_done)
 
-			file_xml_archive=os.path.join(archive_dir, file_xml)
+			file_xml_archive = os.path.join(archive_dir, file_xml)
 
-			file_done_download=os.path.join(download_dir, file_xml)
-			file_done_archive=os.path.join(download_dir, file_done)
+			file_done_download = os.path.join(download_dir, file_xml)
+			file_done_archive = os.path.join(download_dir, file_done)
 
 			os.rename(file_done_download,file_xml_archive)
 
@@ -123,31 +122,31 @@ def main():
 
 			os.unlink(file_done_archive)
 
-			oaghistory[file_xml]='D' # downloaded
+			oaghistory[file_xml] = 'D' # downloaded
 
-	downloadcount=0
+	downloadcount = 0
 
 	with ftputil.FTPHost(server, username, password) as ftp_host:
 
 		try:
-			files=ftp_host.listdir(ftp_host.curdir)
+			files = ftp_host.listdir(ftp_host.curdir)
 			for file_xml in files:
 				match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', file_xml, re.I)
 
-				download=False
+				download = False
 
 				if match is not None:
 					if file_xml not in oaghistory.keys():
-						oaghistory[file_xml]='N' # new
+						oaghistory[file_xml] = 'N' # new
 
 					if oaghistory[file_xml] == 'N':
-						download=True
+						download = True
 					else:
 						logger.debug("Skipping %s", file_xml)
 						continue
 
-					file_xml_download=os.path.join(download_dir,file_xml)
-					file_xml_staging=os.path.join(staging_dir,file_xml)
+					file_xml_download = os.path.join(download_dir,file_xml)
+					file_xml_staging = os.path.join(staging_dir,file_xml)
 
 					#protection against redownload
 					if os.path.isfile(file_xml_download) and os.path.getsize(file_xml_download) > 0 and os.path.getsize(file_xml_download) == ftp_host.stat(file_xml).st_size:
@@ -174,15 +173,15 @@ def main():
 			logger.debug("before virus scan")
 			if run_virus_scan(vscanexe, vscanopt, staging_dir):
 				for f in os.listdir(staging_dir):
-					oaghistory[f]='R'
-					file_download=os.path.join(download_dir,f)
-					file_staging=os.path.join(staging_dir,f)
+					oaghistory[f] = 'R'
+					file_download = os.path.join(download_dir,f)
+					file_staging = os.path.join(staging_dir,f)
 					logger.debug("move %s from staging to download %s",file_staging ,file_download)
 					os.rename(file_staging,file_download)
-					downloadcount+=1
+					downloadcount += 1
 		except:
 			logger.exception("Failure")
-			status=-2
+			status =- 2
 
 	# end with
 
@@ -191,7 +190,7 @@ def main():
 	logger.info("Downloaded %s files", downloadcount)
 
 	if downloadcount == 0:
-		status=-1
+		status =- 1
 
 	logger.info("Done Status %s", status)
 
