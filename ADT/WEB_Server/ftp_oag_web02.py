@@ -102,28 +102,28 @@ def main():
 
 	# process download folder for downloaded files and move to archive folder
 	logger.debug("Scanning download folder %s", download_dir)
-	for f in os.listdir(download_dir):
-		logger.debug("File %s", f)
+	for file_done in os.listdir(download_dir):
+		logger.debug("File %s", file_done)
 
-		match = re.search('^(1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', f, re.I)
+		match = re.search('^(1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', file_done, re.I)
 
 		if match is not None:
-			filename=match.group(1)
+			file_xml=match.group(1)
 
-			logger.info("File %s has been downloaded %s file found", filename, f)
+			logger.info("File %s has been downloaded %s file found", file_xml, file_done)
 
-			nf=os.path.join(archive_dir, filename)
+			file_xml_archive=os.path.join(archive_dir, file_xml)
 
-			lf=os.path.join(download_dir, filename)
-			lfd=os.path.join(download_dir, f)
+			file_done_download=os.path.join(download_dir, file_xml)
+			file_done_archive=os.path.join(download_dir, file_done)
 
-			os.rename(lf,nf)
+			os.rename(file_done_download,file_xml_archive)
 
-			logger.info("Archived %s", filename)
+			logger.info("Archived %s", file_xml)
 
-			os.unlink(lfd)
+			os.unlink(file_done_archive)
 
-			oaghistory[filename]='D' # downloaded
+			oaghistory[file_xml]='D' # downloaded
 
 	downloadcount=0
 
@@ -131,43 +131,43 @@ def main():
 
 		try:
 			files=ftp_host.listdir(ftp_host.curdir)
-			for f in files:
-				match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', f, re.I)
+			for file_xml in files:
+				match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', file_xml, re.I)
 
 				download=False
 
 				if match is not None:
-					if f not in oaghistory.keys():
-						oaghistory[f]='N' # new
+					if file_xml not in oaghistory.keys():
+						oaghistory[file_xml]='N' # new
 
-					if oaghistory[f] == 'N':
+					if oaghistory[file_xml] == 'N':
 						download=True
 					else:
-						logger.debug("Skipping %s", f)
+						logger.debug("Skipping %s", file_xml)
 						continue
 
-					lf=os.path.join(download_dir,f)
-					slf=os.path.join(staging_dir,f)
+					file_xml_download=os.path.join(download_dir,file_xml)
+					file_xml_staging=os.path.join(staging_dir,file_xml)
 
 					#protection against redownload
-					if os.path.isfile(lf) and os.path.getsize(lf) > 0 and os.path.getsize(lf) == ftp_host.stat(f).st_size:
+					if os.path.isfile(file_xml_download) and os.path.getsize(file_xml_download) > 0 and os.path.getsize(file_xml_download) == ftp_host.stat(file_xml).st_size:
 						logger.info("File exists")
 
 						download=False
 
-						oaghistory[f]='R' # ready
+						oaghistory[file_xml]='R' # ready
 
-						logger.debug("purge %s", f)
-						ftp_host.remove(f)
+						logger.debug("purge %s", file_xml)
+						ftp_host.remove(file_xml)
 
 					if download:
-						logger.info("Downloading %s to %s", f, lf)
+						logger.info("Downloading %s to %s", file_xml, file_xml_download)
 
-						ftp_host.download(f, slf) # remote, local
+						ftp_host.download(file_xml, file_xml_staging) # remote, local
 
-						if os.path.isfile(slf) and os.path.getsize(slf) > 0 and os.path.getsize(slf) == ftp_host.stat(f).st_size:
-							logger.debug("purge %s", f)
-							ftp_host.remove(f)
+						if os.path.isfile(file_xml_staging) and os.path.getsize(file_xml_staging) > 0 and os.path.getsize(file_xml_staging) == ftp_host.stat(file_xml).st_size:
+							logger.debug("purge %s", file_xml)
+							ftp_host.remove(file_xml)
 			# end for
 
 			# batch virus scan on staging_dir for OAG
@@ -175,10 +175,10 @@ def main():
 			if run_virus_scan(vscanexe, vscanopt, staging_dir):
 				for f in os.listdir(staging_dir):
 					oaghistory[f]='R'
-					lf=os.path.join(download_dir,f)
-					sf=os.path.join(staging_dir,f)
-					logger.debug("move %s from staging to download %s",sf ,lf)
-					os.rename(sf,lf)
+					file_download=os.path.join(download_dir,f)
+					file_staging=os.path.join(staging_dir,f)
+					logger.debug("move %s from staging to download %s",file_staging ,file_download)
+					os.rename(file_staging,file_download)
 					downloadcount+=1
 		except:
 			logger.exception("Failure")
