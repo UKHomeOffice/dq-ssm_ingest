@@ -48,22 +48,6 @@ def run_virus_scan(vscanexe, option, filename):
 	if virus_scan_return_code != 0: # Exit script if virus scan exe fails
 		logger.error('VIRUS SCAN FAILED %s', filename)
 		return False
-		#if os.path.isfile(filename):
-		#	# quarantine single
-		#	logger.error("Quarantine file %s", filename)
-		#	nf=os.path.join(quarantine_dir,  os.path.basename(filename))
-		#	os.rename(filename,nf)
-		#elif os.path.isdir(filename):
-		#	logger.error("Quarantine folder %s", filename)
-		#	for f in os.listdir(filename):
-		#		logger.error("Quarantine file %s", f)
-		#		nf=os.path.join(quarantine_dir,  os.path.basename(f))
-		#		os.rename(f,nf)
-		#else:
-		#	# hard failure
-		#	logger.error("Can't quarantine %s", filename)
-		#	print -2
-		#	os._exit(1)
 	else:
 		logger.debug('Virus scan OK')
 
@@ -138,7 +122,6 @@ def main():
 			logger.info("Archived %s", filename)
 
 			os.unlink(lfd)
-			#os.unlink(lf)
 
 			oaghistory[filename]='D' # downloaded
 
@@ -149,9 +132,6 @@ def main():
 		try:
 			files=ftp_host.listdir(ftp_host.curdir)
 			for f in files:
-#				if downloadcount == 5:
-#					break
-
 				match = re.search('^1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml$', f, re.I)
 
 				download=False
@@ -188,13 +168,6 @@ def main():
 						if os.path.isfile(slf) and os.path.getsize(slf) > 0 and os.path.getsize(slf) == ftp_host.stat(f).st_size:
 							logger.debug("purge %s", f)
 							ftp_host.remove(f)
-							#logger.debug("before virus scan")
-							#if run_virus_scan(vscanexe, vscanopt, slf):
-							#	oaghistory[f]='R' # ready
-							#	os.rename(slf,lf)
-							#	downloadcount+=1
-							#
-							#	ftp_host.remove(f)
 			# end for
 
 			# batch virus scan on staging_dir for OAG
