@@ -18,16 +18,16 @@ import subprocess
 import paramiko
 
 
-ssh_remote_host='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
-ssh_remote_user='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
-ssh_private_key='<see doc for details: /Aker Systems (Home Office)/DQ Transition Project/notes>'
-ssh_landing_dir='/'
-download_dir='/ADT/data/oag'
-staging_dir='/ADT/stage/oag'
-archive_dir='/ADT/archive/oag'
-quarantine_dir='/ADT/quarantine/oag'
-vscanexe='/usr/bin/clamdscan'
-vscanopt=''
+ssh_remote_host_maytech = os.environ['MAYTECH_HOST']
+ssh_remote_user_maytech = os.environ['MAYTECH_USER']
+ssh_private_key = '~/id_rsa'
+ssh_landing_dir = '/'
+download_dir = '/ADT/data/oag'
+staging_dir = '/ADT/stage/oag'
+archive_dir = '/ADT/archive/oag'
+quarantine_dir = '/ADT/quarantine/oag'
+vscanexe = '/usr/bin/clamdscan'
+vscanopt = ''
 
 def ssh_login(in_host, in_user, in_keyfile):
     logger = logging.getLogger()
@@ -111,7 +111,7 @@ def main():
 
 	downloadcount = 0
     logger.debug("Connecting via SSH")
-    ssh = ssh_login(ssh_remote_host, ssh_remote_user, ssh_private_key)
+    ssh = ssh_login(ssh_remote_host_maytech, ssh_remote_user_maytech, ssh_private_key)
     logger.debug("Connected")
     sftp = ssh.open_sftp()
 
