@@ -30,16 +30,16 @@ vscanexe = '/usr/bin/clamdscan'
 vscanopt = ''
 
 def ssh_login(in_host, in_user, in_keyfile):
-    logger = logging.getLogger()
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy()) ## This line can be removed when the host is added to the known_hosts file
-    privkey = paramiko.RSAKey.from_private_key_file (in_keyfile)
-    try:
-        ssh.connect(in_host, username=in_user,pkey=privkey )
-    except Exception, e:
-        logger.exception('SSH CONNECT ERROR')
-        os._exit(1)
-    return ssh
+	logger = logging.getLogger()
+	ssh = paramiko.SSHClient()
+	ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy()) ## This line can be removed when the host is added to the known_hosts file
+	privkey = paramiko.RSAKey.from_private_key_file (in_keyfile)
+	try:
+		ssh.connect(in_host, username=in_user,pkey=privkey )
+	except Exception, e:
+		logger.exception('SSH CONNECT ERROR')
+		os._exit(1)
+	return ssh
 
 
 def run_virus_scan(vscanexe, option, filename):
@@ -110,10 +110,10 @@ def main():
 			oaghistory[file_xml]='D' # downloaded
 
 	downloadcount = 0
-    logger.debug("Connecting via SSH")
-    ssh = ssh_login(ssh_remote_host_maytech, ssh_remote_user_maytech, ssh_private_key)
-    logger.debug("Connected")
-    sftp = ssh.open_sftp()
+	logger.debug("Connecting via SSH")
+	ssh = ssh_login(ssh_remote_host_maytech, ssh_remote_user_maytech, ssh_private_key)
+	logger.debug("Connected")
+	sftp = ssh.open_sftp()
 
 	try:
 		sftp.chdir(ssh_landing_dir)
@@ -125,35 +125,35 @@ def main():
 				if file_xml not in oaghistory.keys():
 					oaghistory[file_xml]='N' # new
 
-                if oaghistory[file_xml] == 'N':
-					download = True
-				else:
-					logger.debug("Skipping %s", file_xml)
-					continue
+			if oaghistory[file_xml] == 'N':
+				download = True
+			else:
+				logger.debug("Skipping %s", file_xml)
+				continue
 
-                file_xml_download = os.path.join(download_dir,file_xml)
-				file_xml_staging = os.path.join(staging_dir,file_xml)
+		file_xml_download = os.path.join(download_dir,file_xml)
+		file_xml_staging = os.path.join(staging_dir,file_xml)
 
-				#protection against redownload
-				if os.path.isfile(file_xml_staging) and os.path.getsize(file_xml_staging) > 0 and os.path.getsize(file_xml_staging) == sftp.stat(file_xml).st_size:
-					logger.info("File exists")
-					download = False
-					oaghistory[file_xml] = 'R' # ready
-					logger.debug("purge %s", file_xml)
-					sftp.remove(file_xml)
-				if download:
-					logger.info("Downloading %s to %s", file_xml, file_xml_staging)
-					sftp.get(file_xml, file_xml_staging) # remote, local
-					if os.path.isfile(file_xml_staging) and os.path.getsize(file_xml_staging) > 0 and os.path.getsize(file_xml_staging) == sftp.stat(file_xml).st_size:
-						logger.debug("purge %s", file_xml)
-						sftp.remove(file_xml)
-		# end for
+		#protection against redownload
+		if os.path.isfile(file_xml_staging) and os.path.getsize(file_xml_staging) > 0 and os.path.getsize(file_xml_staging) == sftp.stat(file_xml).st_size:
+			logger.info("File exists")
+			download = False
+			oaghistory[file_xml] = 'R' # ready
+			logger.debug("purge %s", file_xml)
+			sftp.remove(file_xml)
+		if download:
+			logger.info("Downloading %s to %s", file_xml, file_xml_staging)
+			sftp.get(file_xml, file_xml_staging) # remote, local
+			if os.path.isfile(file_xml_staging) and os.path.getsize(file_xml_staging) > 0 and os.path.getsize(file_xml_staging) == sftp.stat(file_xml).st_size:
+				logger.debug("purge %s", file_xml)
+				sftp.remove(file_xml)
+			# end for
 	except:
 		logger.exception("Failure")
 		status=-2
-	# end with
+# end with
 
-	# batch virus scan on staging_dir for OAG
+# batch virus scan on staging_dir for OAG
 	logger.debug("before virus scan")
 	if run_virus_scan(vscanexe, vscanopt, staging_dir):
 		for f in os.listdir(staging_dir):
@@ -176,4 +176,4 @@ def main():
 # end def main
 
 if __name__ == '__main__':
-    main()
+	main()
