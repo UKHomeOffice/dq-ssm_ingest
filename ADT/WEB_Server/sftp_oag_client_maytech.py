@@ -20,8 +20,8 @@ import paramiko
 
 ssh_remote_host_maytech = os.environ['MAYTECH_HOST']
 ssh_remote_user_maytech = os.environ['MAYTECH_USER']
-ssh_private_key = '~/id_rsa'
-ssh_landing_dir = '/'
+ssh_private_key = os.environ['MAYTECH_OAG_PRIVATE_KEY_PATH']
+ssh_landing_dir = os.environ['MAYTECH_OAG_LANDING_DIR']
 download_dir = '/ADT/data/oag'
 staging_dir = '/ADT/stage/oag'
 archive_dir = '/ADT/archive/oag'
