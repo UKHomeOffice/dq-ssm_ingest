@@ -50,7 +50,12 @@ def main():
 			level=logging.INFO
 		)
 
-	dbh=psycopg2.connect(database= args.database, user=args.username, password=args.password)
+	dbh=psycopg2.connect(
+		database=os.environ['RDS_POSTGRES_DATA_INGEST_NAME'],
+		user=os.environ['RDS_POSTGRES_DATA_INGEST_USERNAME'],
+		host=os.environ['RDS_POSTGRES_DATA_INGEST_HOST_NAME'],
+		password=os.environ['RDS_POSTGRES_DATA_INGEST_PASSWORD']
+	)
 
 	logger=logging.getLogger()
 	
