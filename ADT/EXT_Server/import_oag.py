@@ -51,10 +51,10 @@ def main():
 		)
 
 	dbh=psycopg2.connect(
-		database=os.environ['RDS_POSTGRES_DATA_INGEST_NAME'],
-		user=os.environ['RDS_POSTGRES_DATA_INGEST_USERNAME'],
+		database='mvt',
+		user=os.environ['MVT_SCHEMA_SSM_USERNAME'],
 		host=os.environ['RDS_POSTGRES_DATA_INGEST_HOST_NAME'],
-		password=os.environ['RDS_POSTGRES_DATA_INGEST_PASSWORD']
+		password=os.environ['MVT_SCHEMA_SSM_PASSWORD']
 	)
 
 	logger=logging.getLogger()
