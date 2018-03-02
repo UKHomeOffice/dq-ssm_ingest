@@ -166,7 +166,8 @@ def main():
 
 								# move from staging to live
 								os.rename(file_csv_staging,file_csv_download)
-
+								file_done_download = file_csv_download + '.done'
+								open(file_done_download,'w').close()
 								downloadcount+=1
 			# end for
 		except:
