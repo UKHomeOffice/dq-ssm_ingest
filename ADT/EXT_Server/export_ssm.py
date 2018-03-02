@@ -54,7 +54,12 @@ def main():
 	logger=logging.getLogger()
 	
 	logger.info("schd export %s %s", args.folder, args.archive)
-	dbh=psycopg2.connect(database= args.database, user=args.username, password=args.password)
+	dbh=psycopg2.connect(
+		database='mvt',
+		user=os.environ['MVT_SCHEMA_SSM_USERNAME'],
+		host=os.environ['RDS_POSTGRES_DATA_INGEST_HOST_NAME'],
+		password=os.environ['MVT_SCHEMA_SSM_PASSWORD']
+	)
 	
 	status, message=schd.aclmerge(dbh)
 
