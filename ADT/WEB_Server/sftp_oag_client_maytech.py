@@ -162,6 +162,8 @@ def main():
             file_staging = os.path.join(staging_dir,f)
             logger.debug("move %s from staging to download %s",file_staging ,file_download)
             os.rename(file_staging,file_download)
+            file_done_download = file_download + '.done'
+            open(file_done_download,'w').close()
             downloadcount+=1
 
     oaghistory.close()
