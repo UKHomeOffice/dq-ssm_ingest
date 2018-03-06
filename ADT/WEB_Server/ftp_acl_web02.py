@@ -157,7 +157,7 @@ def main():
 
                         logger.debug("downloaded %s to %s", file_csv, file_csv_staging)
 
-                        if os.path.isfile(file_csv_staging) and os.path.getsize(file_csv_staging) > 0 and os.path.getsize(file_csv_download) == ftp_host.stat(file_csv).st_size:
+                        if os.path.isfile(file_csv_staging) and os.path.getsize(file_csv_staging) > 0 and os.path.getsize(file_csv_staging) == ftp_host.stat(file_csv).st_size:
                             logger.debug("before virus scan")
                             if run_virus_scan(vscanexe, vscanopt, file_csv_staging):
                                 aclhistory[file_csv]='R' # ready
