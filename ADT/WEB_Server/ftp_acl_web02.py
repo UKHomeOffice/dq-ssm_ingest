@@ -78,8 +78,6 @@ def main():
 
 	status = 1
 
-	ProxySock.setup_http_proxy(os.environ['proxy'], 3128)
-
 	aclhistory = gdbm.open('aclhistory.db','c')
 
 	if not os.path.exists(download_dir):
