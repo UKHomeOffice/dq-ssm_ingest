@@ -125,8 +125,8 @@ def main():
                 if file_xml not in oaghistory.keys():
                     oaghistory[file_xml]='N' # new
 
-            if oaghistory[file_xml] == 'N':
-                download = True
+                if oaghistory[file_xml] == 'N':
+                    download = True
             else:
                 logger.debug("Skipping %s", file_xml)
                 continue
