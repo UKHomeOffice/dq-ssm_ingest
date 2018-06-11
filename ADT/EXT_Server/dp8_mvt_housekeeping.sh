@@ -2,5 +2,5 @@
 
 cd /ADT/scripts
 
-/ADT/scripts/housekeeping_mvt.py -d mvt -u <username> -p <password> -r $1
+/ADT/scripts/housekeeping_mvt.py -d mvt -u $MVT_SCHEMA_SSM_USERNAME -p $MVT_SCHEMA_SSM_PASSWORD -r $1
 
