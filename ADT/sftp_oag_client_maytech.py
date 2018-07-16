@@ -24,7 +24,6 @@ ssh_private_key = os.environ['MAYTECH_OAG_PRIVATE_KEY_PATH']
 ssh_landing_dir = os.environ['MAYTECH_OAG_LANDING_DIR']
 download_dir = '/ADT/data/oag'
 staging_dir = '/ADT/stage/oag'
-archive_dir = '/ADT/archive/oag'
 quarantine_dir = '/ADT/quarantine/oag'
 vscanexe = '/usr/bin/clamdscan'
 vscanopt = ''
@@ -85,29 +84,12 @@ def main():
     oaghistory = gdbm.open('/ADT/scripts/oaghistory.db','c')
     if not os.path.exists(download_dir):
         os.makedirs(download_dir)
-    if not os.path.exists(archive_dir):
-        os.makedirs(archive_dir)
     if not os.path.exists(staging_dir):
         os.makedirs(staging_dir)
     if not os.path.exists(quarantine_dir):
         os.makedirs(quarantine_dir)
 
-    # process download folder for downloaded files and move to archive folder
-    logger.debug("Scanning download folder %s", download_dir)
-    for file_done in os.listdir(download_dir):
-        logger.debug("File %s", file_done)
-        match = re.search('^(1124_(SH)?(\d\d\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)_(\d\d)(.*?)\.xml)\.done$', file_done, re.I)
-
-        if match is not None:
-            file_xml = match.group(1)
-            logger.info("File %s has been downloaded %s file found", file_xml, file_done)
-            file_xml_archive = os.path.join(archive_dir, file_xml)
-            file_xml_download = os.path.join(download_dir, file_xml)
-            file_done_download = os.path.join(download_dir, file_done)
-            os.rename(file_xml_download,file_xml_archive)
-            logger.info("Archived %s", file_xml)
-            os.unlink(file_done_download)
-            oaghistory[file_xml]='D' # downloaded
+    # Note: do not archive the files - the OAG Import script will do the archiving
 
     downloadcount = 0
     logger.debug("Connecting via SSH")
