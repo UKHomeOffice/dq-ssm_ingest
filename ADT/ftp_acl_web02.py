@@ -28,7 +28,7 @@ password = os.environ['password']
 download_dir = '/ADT/data/acl'
 staging_dir = '/ADT/stage/acl'
 quarantine_dir = '/ADT/quarantine/acl'
-archive_dir = '/ADT/archive/acl'
+#archive_dir = '/ADT/archive/acl'
 
 vscanexe = '/usr/bin/clamdscan'
 vscanopt = ''
@@ -89,33 +89,7 @@ def main():
     if not os.path.exists(quarantine_dir):
         os.makedirs(quarantine_dir)
 
-    if not os.path.exists(archive_dir):
-        os.makedirs(archive_dir)
-
-    # process download folder for downloaded files and move to archive folder
-    logger.debug("Scanning download folder %s", download_dir)
-    for file_done in os.listdir(download_dir):
-        logger.debug("File %s", file_done)
-
-        match = re.search('^((.*?)homeofficeroll(\d+)_(\d{4}\d{2}\d{2})\.csv)\.done$', file_done, re.I)
-
-        if match is not None:
-            file_csv = match.group(1)
-
-            logger.info("File %s has been downloaded %s file found", file_csv, file_done)
-
-            nf = os.path.join(archive_dir, file_csv)
-
-            file_csv_download = os.path.join(download_dir, file_csv)
-            file_done_download = os.path.join(download_dir, file_done)
-
-            os.rename(file_csv_download,nf)
-
-            logger.info("Archived %s", file_csv)
-
-            os.unlink(file_done_download)
-
-            aclhistory[file_csv]='D' # downloaded
+    # Note: do not archive the files - the ACL Import script will do the archiving
 
     downloadcount = 0
 
