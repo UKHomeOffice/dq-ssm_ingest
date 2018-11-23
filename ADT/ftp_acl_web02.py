@@ -28,7 +28,6 @@ password = os.environ['password']
 download_dir = '/ADT/data/acl'
 staging_dir = '/ADT/stage/acl'
 quarantine_dir = '/ADT/quarantine/acl'
-#archive_dir = '/ADT/archive/acl'
 
 vscanexe = '/usr/bin/clamdscan'
 vscanopt = ''
@@ -59,14 +58,14 @@ def main():
 
     if args.DEBUG:
         logging.basicConfig(
-            filename='/ADT/scripts/ftp_acl.log',
+            filename='/ADT/log/ftp_acl.log',
             format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
             datefmt='%Y-%m-%d %H:%M:%S',
             level=logging.DEBUG
         )
     else:
         logging.basicConfig(
-            filename='/ADT/scripts/ftp_acl.log',
+            filename='/ADT/log/ftp_acl.log',
             format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
             datefmt='%Y-%m-%d %H:%M:%S',
             level=logging.INFO
