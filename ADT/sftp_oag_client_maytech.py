@@ -62,14 +62,14 @@ def main():
     args = parser.parse_args()
     if args.DEBUG:
         logging.basicConfig(
-            filename='/ADT/scripts/sftp_oag_maytech.log',
+            filename='/ADT/log/sftp_oag_maytech.log',
             format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
             datefmt='%Y-%m-%d %H:%M:%S',
             level=logging.DEBUG
         )
     else:
         logging.basicConfig(
-            filename='/ADT/scripts/sftp_oag_maytech.log',
+            filename='/ADT/log/sftp_oag_maytech.log',
             format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s",
             datefmt='%Y-%m-%d %H:%M:%S',
             level=logging.INFO
